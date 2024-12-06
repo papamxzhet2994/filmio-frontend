@@ -13,6 +13,47 @@ const Settings = () => {
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
     const token = localStorage.getItem("token");
     const [userId, setUserId] = useState(null);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [passwordError, setPasswordError] = useState(false);
+
+    const showToast = (message, type) => {
+        toast.custom(
+            <motion.div
+                className={`p-4 rounded-md ${type === "success" ? "bg-green-500" : type === "error" ? "bg-red-500" : "bg-gray-700"} text-white`}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+            >
+                {message}
+            </motion.div>,
+            {
+                duration: 4000, // длительность показа уведомления
+                position: "top-right", // позиция уведомления
+                style: { zIndex: 9999 } // на случай наложения
+            }
+        );
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deletePassword) {
+            setPasswordError(true);
+            return;
+        }
+
+        axios
+            .post(
+                `http://localhost:8080/api/users/${userId}/verify-password`,
+                { password: deletePassword },
+                { headers: { Authorization: `Bearer ${token}` } }
+            )
+            .then(() => {
+                handleDeleteAccount();
+            })
+            .catch(() => {
+                showToast("Пароль неверен. Удаление невозможно.", "error");
+            });
+    };
 
     const validatePassword = (password) => {
         const regex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
@@ -33,18 +74,6 @@ const Settings = () => {
                 });
         }
     }, [token]);
-
-    const showToast = (message, type) => {
-        toast.custom(
-            <div
-                className={`p-4 rounded-md ${
-                    type === "success" ? "bg-green-500" : type === "error" ? "bg-red-500" : "bg-gray-700"
-                } text-white`}
-            >
-                {message}
-            </div>
-        );
-    };
 
     const handleChangePassword = () => {
         if (!newPassword || !confirmPassword || !currentPassword) {
@@ -138,7 +167,7 @@ const Settings = () => {
                 <ThemeSwitcher/>
             </div>
             {!isChangingPassword ? (
-                <div className="mb-6">
+                <div className="mb-6 border-b border-gray-500 dark:border-gray-700 pb-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Сменить пароль</h3>
                     <button
                         onClick={() => setIsChangingPassword(true)}
@@ -199,8 +228,9 @@ const Settings = () => {
                 </motion.div>
             )}
             {/* Danger Zone */}
-            <div className="mt-10 border-t border-gray-700 pt-6">
-                <h3 className="text-lg font-semibold text-red-600 mb-4">Опасная зона</h3>
+            <h3 className="text-lg font-semibold mb-4">Удаление аккаунта</h3>
+            <div className=" bg-gray-100 dark:bg-gray-900 rounded-lg border border-red-600 p-6">
+                <h3 className="text-lg font-semibold text-red-600 mb-4">Внимание!</h3>
                 <p className="text-gray-400 mb-4">
                     Удаление аккаунта приведёт к безвозвратной потере всех ваших данных. Пожалуйста, будьте осторожны.
                 </p>
@@ -211,40 +241,54 @@ const Settings = () => {
                 >
                     {isLoading ? 'Удаление...' : 'Удалить аккаунт'}
                 </button>
-            </div>
 
-            {/* Custom Confirmation Modal */}
-            {isConfirmingDelete && (
-                <motion.div
-                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                >
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-                            Подтверждение удаления
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
-                            Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо.
-                        </p>
-                        <div className="flex gap-4 justify-end items-center">
-                            <button
-                                onClick={() => setIsConfirmingDelete(false)}
-                                className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-6 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-                            >
-                                Отмена
-                            </button>
-                            <button
-                                onClick={handleDeleteAccount}
-                                className="bg-red-500 dark:bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-600 dark:hover:bg-red-700"
-                            >
-                                Удалить
-                            </button>
+                {/* Custom Confirmation Modal */}
+                {isConfirmingDelete && (
+                    <motion.div
+                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        transition={{duration: 0.3}}
+                    >
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-xl w-full">
+                            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                                Подтверждение удаления
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                Введите пароль для подтверждения удаления аккаунта.
+                            </p>
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={deletePassword}
+                                onChange={(e) => {
+                                    setDeletePassword(e.target.value);
+                                    setPasswordError(false);
+                                }}
+                                className={`block w-full px-4 py-2 mb-4 rounded-lg ${passwordError ? 'border-red-500' : 'border-gray-300'}`}
+                            />
+                            {passwordError && (
+                                <p className="text-red-500 text-sm mb-4">Неверный пароль. Попробуйте ещё раз.</p>
+                            )}
+                            <div className="flex gap-4 justify-end items-center">
+                                <button
+                                    onClick={() => setIsConfirmingDelete(false)}
+                                    className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-6 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={handleConfirmDelete}
+                                    className="bg-red-500 dark:bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-600 dark:hover:bg-red-700"
+                                >
+                                    Удалить
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </motion.div>
-            )}
-
+                    </motion.div>
+                )}
+            </div>
         </div>
     );
 };

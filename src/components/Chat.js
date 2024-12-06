@@ -3,6 +3,7 @@ import axios from "axios";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { motion, AnimatePresence } from "framer-motion";
+import Linkify from "react-linkify";
 
 const Chat = ({ roomId, username }) => {
     const [chatMessages, setChatMessages] = useState([]);
@@ -23,6 +24,10 @@ const Chat = ({ roomId, username }) => {
     const chatContainerRef = useRef(null);
     const client = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
+    const textareaRef = useRef(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const toggleCollapse = () => setIsCollapsed((prev) => !prev);
 
     const fetchMessages = async () => {
         try {
@@ -83,20 +88,23 @@ const Chat = ({ roomId, username }) => {
             });
             setChatMessage("");
             setReplyTo(null);
+            const textarea = textareaRef.current;
+            textarea.style.height = "auto";
         } catch (error) {
             console.error("Error sending message:", error);
         }
     };
 
-    const handleTyping = (e) => {
+    const handleMessageChange = (e) => {
         setChatMessage(e.target.value);
-        if (client.current) {
-            client.current.publish({
-                destination: `/app/${roomId}/typing`,
-                body: JSON.stringify({ username, isTyping: !!e.target.value }),
-            });
-        }
+
+        const textarea = textareaRef.current;
+        textarea.style.height = "auto";
+        const scrollHeight = textarea.scrollHeight;
+        const maxHeight = 150;
+        textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
     };
+
 
     const handleContextMenu = (e, messageId) => {
         e.preventDefault();
@@ -192,99 +200,141 @@ const Chat = ({ roomId, username }) => {
     useEffect(() => {
         scrollToBottom();
     }, [chatMessages]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
     return (
         <div
             ref={chatContainerRef}
-            className="flex flex-col h-[calc(100vh-80px)] bg-gradient-to-b from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 text-gray-800 dark:text-white relative"
+            className={`flex flex-col h-[calc(100vh-80px)] ${
+                isCollapsed ? "w-20 fixed right-0 bottom-0" : "w-[400px]"
+            } bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white relative transition-all duration-300`}
             onClick={() => setContextMenu({visible: false, x: 0, y: 0, messageId: null})}
         >
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-800 rounded-t-lg shadow-inner relative">
-                {chatMessages.map((msg, index) => (
-                    <React.Fragment key={msg.id}>
-                        {isNewDay(msg.timestamp, chatMessages[index - 1]?.timestamp) && (
-                            <div className="text-center text-gray-500 dark:text-gray-400 text-xs my-4">
-                                {new Date(msg.timestamp).toLocaleDateString()}
-                            </div>
-                        )}
+            <div
+                className="flex items-center justify-between p-2 bg-gray-200 dark:bg-gray-700">
+                <div
+                    className={`flex items-center transition-all duration-300 ${isCollapsed ? "justify-center" : "gap-2"}`}>
+                    <h2 className={`text-lg font-bold ${isCollapsed ? "hidden" : "block"} transition-opacity duration-300`}>Чат</h2>
+                    {isCollapsed && (
+                        <h2 className="text-lg font-bold">Чат</h2>
+                    )}
+                </div>
+                <button
+                    onClick={toggleCollapse}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-indigo-500 hover:text-purple-500 shadow-lg hover:shadow-xl transition-transform transform hover:scale-110 duration-300"
+                    aria-label="Toggle Collapse"
+                >
+                    {isCollapsed ? (
+                        <i className="fas fa-chevron-left text-xs"></i>
+                    ) : (
+                        <i className="fas fa-chevron-right text-xs"></i>
+                    )}
+                </button>
+            </div>
+            {!isCollapsed ? (
+                <div className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-800 rounded-t-lg shadow-inner relative">
+                    {chatMessages.map((msg, index) => {
+                        const isSameSenderAsPrevious =
+                            index > 0 && chatMessages[index - 1]?.username === msg.username;
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className={`mb-4 flex ${
-                                msg.username === username ? "justify-end" : "justify-start"
-                            }`}
-                            onContextMenu={(e) => handleContextMenu(e, msg.id)}
-                        >
-                            {msg.username !== username && (
-                                <img
-                                    src={`https://ui-avatars.com/api/?name=${msg.username}&background=random&rounded=true`}
-                                    alt={`${msg.username} avatar`}
-                                    className="w-8 h-8 mr-2 rounded-full border-2 border-gray-300 dark:border-gray-600 shadow-lg"
-                                    title={msg.username}
-                                />
-                            )}
-
-                            <div
-                                className={`p-3 rounded-xl max-w-lg text-sm shadow-lg transition-all duration-300 ${
-                                    msg.username === username
-                                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                                        : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-semibold">{msg.username}</span>
-                                    <p className="text-xs ml-8 text-gray-400 dark:text-gray-200">
-                                        {formatDate(msg.timestamp)}
-                                    </p>
-                                </div>
-
-                                {msg.parentMessage && (
-                                    <blockquote
-                                        className="text-gray-500 dark:text-gray-400 text-xs border-l-2 border-gray-300 dark:border-gray-500 pl-2 mb-2"
-                                    >
-                                        Ответ на: {msg.parentMessage.encryptedContent}
-                                    </blockquote>
+                        return (
+                            <React.Fragment key={msg.id}>
+                                {isNewDay(msg.timestamp, chatMessages[index - 1]?.timestamp) && (
+                                    <div className="text-center text-gray-500 dark:text-gray-400 text-xs my-2">
+                                        {new Date(msg.timestamp).toLocaleDateString()}
+                                    </div>
                                 )}
 
-                                <p className="mt-1 break-words">{msg.encryptedContent}</p>
-                            </div>
-                        </motion.div>
-                    </React.Fragment>
-                ))}
-                {showScrollButton && (
-                    <button
-                        onClick={scrollToBottom}
-                        className="absolute bottom-20 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
-                    >
-                        <i className="fas fa-arrow-down"></i>
-                    </button>
-                )}
-                <div ref={messagesEndRef}/>
-                {isTyping && (
-                    <motion.div
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
-                        className="text-sm text-gray-500 dark:text-gray-400 mt-2 italic"
-                    >
-                        Кто-то печатает...
-                    </motion.div>
-                )}
-            </div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className={`mb-2 flex items-start ${
+                                        msg.username === username ? "justify-end" : "justify-start"
+                                    }`}
+                                    onContextMenu={(e) => handleContextMenu(e, msg.id)}
+                                >
+                                    {!isSameSenderAsPrevious && msg.username !== username && (
+                                        <motion.img
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            exit={{ scale: 0 }}
+                                            src={`https://ui-avatars.com/api/?name=${msg.username}&background=random&rounded=true`}
+                                            alt={`${msg.username} avatar`}
+                                            className="w-8 h-8 mr-2 rounded-full border-2 border-gray-300 dark:border-gray-600 shadow-lg"
+                                            title={msg.username}
+                                        />
+                                    )}
 
+                                    <div
+                                        className={`flex flex-col max-w-[75%] ${
+                                            isSameSenderAsPrevious && msg.username !== username ? "ml-10" : ""
+                                        }`}
+                                    >
+                                        {!isSameSenderAsPrevious && msg.username !== username && (
+                                            <span className="text-xs font-semibold">
+                                                {msg.username}
+                                            </span>
+                                        )}
+                                        <div
+                                            className={`relative p-2 rounded-xl shadow-md text-sm min-w-32 ${
+                                                msg.username === username
+                                                    ? "bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-tr-none"
+                                                    : "bg-white text-gray-800 rounded-tl-none dark:bg-gray-700 dark:text-gray-200"
+                                            }`}
+                                        >
+                                            {msg.parentMessage && (
+                                                <blockquote
+                                                    className="mb-2 pl-3 border-l-4 border-purple-400 dark:text-white text-xs">
+                                                    Ответ на: {msg.parentMessage.encryptedContent}
+                                                </blockquote>
+                                            )}
+                                            <div className="flex justify-between items-center">
+                                                <Linkify>
+                                                    <p className="break-words whitespace-pre-wrap">{msg.encryptedContent}</p>
+                                                </Linkify>
+                                                <span className="text-xs dark:text-white justify-end ml-8 mt-auto">
+                                                    {formatDate(msg.timestamp)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </React.Fragment>
+                        );
+                    })}
+                    {showScrollButton && (
+                        <button
+                            onClick={scrollToBottom}
+                            className="absolute bottom-20 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+                        >
+                            <i className="fas fa-arrow-down"></i>
+                        </button>
+                    )}
+                    <div ref={messagesEndRef}/>
+                </div>
+            ) : (
+                <div className="flex-1 flex items-center justify-center">
+                    <i className="fas fa-comments text-gray-400 text-3xl cursor-pointer" onClick={toggleCollapse}></i>
+                </div>
+            )}
             <AnimatePresence>
                 {contextMenu.visible && (
                     <motion.div
                         initial={{opacity: 0, scale: 0.9}}
                         animate={{opacity: 1, scale: 1}}
                         exit={{opacity: 0, scale: 0.9}}
-                        className="absolute bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg p-2 text-white w-36"
+                        className="absolute bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg p-2 text-white w-52"
                         style={{top: contextMenu.y, left: contextMenu.x}}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="block w-full text-left px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300"
+                            className="block w-full text-left px-3 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-300 hover:rounded-lg dark:hover:bg-gray-600 transition-all duration-300"
                             onClick={() => handleReply(contextMenu.messageId)}
                         >
                             <i className="fas fa-reply mr-2"></i> Ответить
@@ -292,7 +342,7 @@ const Chat = ({ roomId, username }) => {
                         {chatMessages.find((msg) => msg.id === contextMenu.messageId)?.username ===
                             username && (
                                 <button
-                                    className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-600/10 transition-all duration-300"
+                                    className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-600/10 hover:rounded-lg transition-all duration-300"
                                     onClick={() => confirmDelete(contextMenu.messageId)}
                                 >
                                     <i className="fas fa-trash-alt mr-2"></i> Удалить
@@ -305,64 +355,91 @@ const Chat = ({ roomId, username }) => {
             <AnimatePresence>
                 {deleteModal.visible && (
                     <motion.div
-                        initial={{opacity: 0, y: -20}}
-                        animate={{opacity: 1, y: 0}}
-                        exit={{opacity: 0, y: -20}}
-                        className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
                     >
-                        <div className="bg-gray-200 dark:bg-gray-800 text-white p-6 rounded-lg shadow-xl max-w-sm w-full">
-                            <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Подтвердите удаление</h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                Вы уверены, что хотите удалить это сообщение? Это действие
-                                необратимо.
+                        <motion.div
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.9 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-6 rounded-2xl shadow-lg max-w-[350px] w-full"
+                        >
+                            <h3 className="text-2xl font-semibold mb-4">Удалить сообщение?</h3>
+                            <p className="text-sm mb-6">
+                                Вы уверены, что хотите удалить это сообщение? Это действие необратимо.
                             </p>
-                            <div className="flex justify-end space-x-2">
+                            <div className="flex justify-end items-center space-x-4">
                                 <button
-                                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-                                    onClick={() => setDeleteModal({visible: false, messageId: null})}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-300 py-2 px-6 rounded-md text-sm transition-all duration-200 ease-in-out"
+                                    onClick={() => setDeleteModal({ visible: false, messageId: null })}
                                 >
                                     Отмена
                                 </button>
                                 <button
-                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-md text-sm transition-all duration-200 ease-in-out"
                                     onClick={handleDelete}
                                 >
                                     Удалить
                                 </button>
                             </div>
-                        </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
             {replyTo && (
                 <motion.div
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
-                    exit={{opacity: 0}}
-                    className="flex items-center bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white px-3 py-1 rounded-lg shadow-inner"
+                    initial={{opacity: 0, y: -10}}
+                    animate={{opacity: 1, y: 0}}
+                    exit={{opacity: 0, y: -10}}
+                    className="flex w-full max-w-lg items-center bg-white dark:bg-gray-700 border-l-4 border-purple-500 px-4 py-3 rounded-md shadow-lg"
                 >
-                    <span className="text-sm mr-2">Ответ на: {replyTo.encryptedContent}</span>
-                    <button onClick={() => setReplyTo(null)}>
-                        <i className="fas fa-times"/>
+                    <div className="flex-1 overflow-hidden">
+                    <span className="block text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                        Ответ на:
+                    </span>
+                        <span className="block text-sm text-gray-600 dark:text-gray-300 truncate">
+                        {replyTo.encryptedContent}
+                    </span>
+                    </div>
+                    <button
+                        onClick={() => setReplyTo(null)}
+                        className="ml-3 flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-100 transition duration-200"
+                        aria-label="Удалить ответ"
+                    >
+                        <i className="fas fa-times text-base"></i>
                     </button>
                 </motion.div>
             )}
-            <div className="bg-gray-200 dark:bg-gray-900 p-2 rounded-b-lg shadow-inner flex items-center space-x-2">
 
-                <input
-                    type="text"
-                    className="flex-grow bg-gray-200 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-white p-3 rounded-lg shadow focus:outline-none focus:ring focus:ring-blue-500"
+            {!isCollapsed && (
+                <div className="bg-gray-200 dark:bg-gray-900 p-2 rounded-b-lg shadow-inner flex items-end space-x-2">
+                <textarea
+                    ref={textareaRef}
+                    className="flex-grow bg-gray-100 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-white p-3 rounded-xl shadow focus:outline-none resize-none overflow-y-auto"
                     placeholder="Введите сообщение"
                     value={chatMessage}
-                    onChange={handleTyping}
-                />
-                <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 rounded-lg shadow"
-                    onClick={sendMessage}
-                >
-                    <i className="fas fa-arrow-up"></i>
-                </button>
-            </div>
+                    onChange={handleMessageChange}
+                    onKeyDown={handleKeyDown}
+                    rows={1}
+                    style={{maxHeight: "150px"}}
+                ></textarea>
+                    <button
+                        className="relative bg-gradient-to-r from-blue-500 to-indigo-500 text-white w-11 h-11 rounded-full shadow-lg transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-indigo-600 active:scale-95"
+                        onClick={sendMessage}
+                    >
+                    <span
+                        className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-75 rounded-full blur-lg"
+                    ></span>
+                        <span className="relative flex items-center justify-center">
+                        <i className="fas fa-arrow-up text-xl"></i>
+                    </span>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

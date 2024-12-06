@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const CreateRoom = () => {
     const [roomName, setRoomName] = useState("");
@@ -16,19 +17,20 @@ const CreateRoom = () => {
             return;
         }
 
-        axios.post(
-            "http://localhost:8080/api/rooms/create",
-            { name: roomName, password, isClosed },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        )
-            .then(response => {
+        axios
+            .post(
+                "http://localhost:8080/api/rooms/create",
+                { name: roomName, password, isClosed },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            .then((response) => {
                 navigate(`/rooms/${response.data.id}`);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Ошибка при создании комнаты:", error);
                 setError("Не удалось создать комнату. Попробуйте снова.");
             });
@@ -40,13 +42,25 @@ const CreateRoom = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800 text-white">
-            <div className="bg-gray-200 dark:bg-gray-900 p-8 rounded-lg shadow-lg max-w-md w-full">
-                <h2 className="text-3xl font-semibold mb-6 text-center dark:text-white text-gray-900">Создать новую комнату</h2>
+            <motion.div
+                className="bg-gray-200 dark:bg-gray-900 p-8 rounded-lg shadow-lg max-w-md w-full"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+                <h2 className="text-3xl font-semibold mb-6 text-center dark:text-white text-gray-900">
+                    Создать новую комнату
+                </h2>
 
                 {error && (
-                    <div className="mb-4 text-red-500 text-sm">
+                    <motion.div
+                        className="mb-4 text-red-500 text-sm"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
                         {error}
-                    </div>
+                    </motion.div>
                 )}
 
                 <div className="mb-4">
@@ -79,7 +93,12 @@ const CreateRoom = () => {
                         Закрытая комната
                     </label>
                 </div>
-                <div className="flex justify-between items-center space-x-2">
+                <motion.div
+                    className="flex justify-between items-center space-x-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                >
                     <button
                         onClick={handleCancel}
                         className="bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 w-full rounded-lg transition duration-200 ease-in-out"
@@ -92,8 +111,8 @@ const CreateRoom = () => {
                     >
                         Создать
                     </button>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };

@@ -70,7 +70,12 @@ const Sidebar = () => {
                                     </div>
                                     {!isCollapsed && (
                                         <div className="ml-4">
-                                            <p>{room.name}</p>
+                                            <div className="flex items-center space-x-2">
+                                                <p>{room.name}</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-500"></i> : <i className="fas fa-lock-open mr-1 text-blue-500"></i> }
+                                                </p>
+                                            </div>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
                                                 {room.isClosed ? "Закрытая" : "Открытая"} |
                                                 Участников: {room.participantCount}

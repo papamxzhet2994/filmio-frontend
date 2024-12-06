@@ -11,10 +11,11 @@ const Profile = () => {
     const [avatarPreview, setAvatarPreview] = useState("");
     const [newLink, setNewLink] = useState({ name: "", url: "" });
     const [links, setLinks] = useState([]);
-    const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false); // Модальное окно подтверждения выхода
+    const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
-    const [currentPage, setCurrentPage] = useState("profile")
+    const [currentPage, setCurrentPage] = useState("profile");
+    const [isLinkSectionOpen, setIsLinkSectionOpen] = useState(false);
 
     const fetchProfile = () => {
         axios
@@ -162,18 +163,19 @@ const Profile = () => {
                 to="/"
                 className="absolute top-4 left-4 text-gray-900 dark:text-white hover:text-blue-500 dark:hover:text-[#7289DA]"
             >
-                <i className="fas fa-chevron-left text-2xl"></i>
+                <i className="fas fa-chevron-left text-xl"></i>
             </Link>
             <motion.div
                 className="w-full lg:w-1/5 bg-gray-100 dark:bg-gray-900 p-4 space-y-4"
-                initial={{opacity: 0, x: -100}}
-                animate={{opacity: 1, x: 0}}
-                transition={{duration: 0.5}}
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+                transition={{duration: 0.3}}
             >
                 <img
                     src={avatarPreview || "/default-avatar.png"}
                     alt="Avatar"
-                    className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-blue-500 dark:border-[#7289DA]"
+                    className="w-24 h-24 rounded-full mx-auto object-cover"
                 />
                 <div className="text-center">
                     <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{user.username}</h1>
@@ -214,32 +216,40 @@ const Profile = () => {
             <AnimatePresence>
                 {isLogoutModalVisible && (
                     <motion.div
-                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
-                        transition={{duration: 0.3}}
+                        className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
                     >
                         <motion.div
-                            className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg max-w-sm w-full"
-                            initial={{scale: 0.8}}
-                            animate={{scale: 1}}
-                            exit={{scale: 0.8}}
-                            transition={{duration: 0.3}}
+                            className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -50, opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
                         >
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                                Вы уверены, что хотите выйти?
-                            </h3>
-                            <div className="flex justify-end gap-4">
+                            <div className="bg-red-500 p-6 text-center dark:bg-red-600">
+                                <i className="fas fa-sign-out-alt text-4xl text-white"></i>
+                            </div>
+                            <div className="p-6 text-center">
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                    Подтвердите выход
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-400 mt-3">
+                                    Вы уверены, что хотите завершить сеанс? Все несохраненные изменения будут потеряны.
+                                </p>
+                            </div>
+                            <div className="flex justify-between items-center p-6 bg-gray-100 dark:bg-gray-800">
                                 <button
                                     onClick={() => setIsLogoutModalVisible(false)}
-                                    className="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+                                    className="px-4 py-2 rounded-lg font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     Отмена
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600"
+                                    className="px-4 py-2 rounded-lg font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
                                 >
                                     Выйти
                                 </button>
@@ -248,6 +258,7 @@ const Profile = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
 
             <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg w-full lg:w-4/5 shadow-lg">
                 {currentPage === "profile" && (
@@ -331,6 +342,46 @@ const Profile = () => {
                                     </li>
                                 ))}
                             </ul>
+                            <div className="mt-6">
+                                <h3
+                                    onClick={() => setIsLinkSectionOpen(!isLinkSectionOpen)}
+                                    className="cursor-pointer text-2xl font-bold text-gray-900 dark:text-white mb-4 flex justify-between"
+                                >
+                                    Добавить новую ссылку
+                                    <span>
+                                        {isLinkSectionOpen ? '-' : '+'}
+                                    </span>
+                                </h3>
+                                {isLinkSectionOpen && (
+                                    <motion.div
+                                        initial={{opacity: 0}}
+                                        animate={{opacity: 1}}
+                                        exit={{opacity: 0}}
+                                        transition={{duration: 0.3}}
+                                    >
+                                        <input
+                                            type="text"
+                                            placeholder="Название ссылки"
+                                            value={newLink.name}
+                                            onChange={(e) => setNewLink({...newLink, name: e.target.value})}
+                                            className="block w-full text-sm text-gray-900 dark:text-gray-200 mb-2 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                                        />
+                                        <input
+                                            type="url"
+                                            placeholder="URL"
+                                            value={newLink.url}
+                                            onChange={(e) => setNewLink({...newLink, url: e.target.value})}
+                                            className="block w-full text-sm text-gray-900 dark:text-gray-200 mb-4 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                                        />
+                                        <button
+                                            onClick={handleAddLink}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mb-4"
+                                        >
+                                            Добавить ссылку
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}

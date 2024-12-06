@@ -6,6 +6,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Chat from "./Chat";
 import toast from "react-hot-toast";
+import SettingsModal from "./SettingsModal";
+import {AnimatePresence, motion } from "framer-motion";
 
 const Room = () => {
     const { id } = useParams();
@@ -23,6 +25,8 @@ const Room = () => {
     const username = localStorage.getItem("username");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
 
     const handleVideoControl = useCallback((control) => {
@@ -78,66 +82,102 @@ const Room = () => {
         const socket = new SockJS("http://localhost:8080/ws");
         const client = Stomp.over(socket);
 
-        client.connect({ Authorization: `Bearer ${token}` }, () => {
-            setConnected(true);
-            client.subscribe(`/topic/participants/${id}`, (message) => {
-                setParticipants(JSON.parse(message.body));
-            });
+        client.connect(
+            { Authorization: `Bearer ${token}` },
+            () => {
+                setConnected(true);
+                client.subscribe(`/topic/participants/${id}`, (message) => {
+                    setParticipants(JSON.parse(message.body));
+                });
+                client.subscribe(`/topic/video/${id}`, (message) => {
+                    const videoControl = JSON.parse(message.body);
+                    handleVideoControl(videoControl);
+                });
 
-            client.subscribe(`/topic/video/${id}`, (message) => {
-                const videoControl = JSON.parse(message.body);
-                handleVideoControl(videoControl);
-            });
-
-            client.send("/app/join", {}, JSON.stringify({ username, roomId: id, type: "JOIN" }));
-            setStompClient(client);
-        }, (error) => {
-            console.error("WebSocket connection error:", error);
-        });
+                client.send(
+                    "/app/join",
+                    {},
+                    JSON.stringify({ username, roomId: id, type: "JOIN" })
+                );
+                setStompClient(client);
+            },
+            (error) => {
+                console.error("WebSocket connection error:", error);
+            }
+        );
     };
 
     const loadRoomDetails = () => {
-        axios.get(`http://localhost:8080/api/rooms/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        }).then(response => {
-            const roomData = response.data;
-            setRoom(roomData);
-            if (!roomData.hasPassword) {
-                setAccessGranted(true);
-                connectToRoom();
-                localStorage.setItem("accessGranted", true);
-            }
-        }).catch(error => {
-            console.error("Ошибка при получении информации о комнате:", error);
-        });
+        axios
+            .get(`http://localhost:8080/api/rooms/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+                const roomData = response.data;
+                setRoom(roomData);
+
+                if (!roomData.hasPassword) {
+                    // Если пароль не требуется, сразу предоставляем доступ
+                    setAccessGranted(true);
+                    connectToRoom();
+                }
+            })
+            .catch((error) => {
+                console.error("Ошибка при загрузке комнаты:", error);
+                toast.error("Ошибка загрузки комнаты.");
+                navigate("/");
+            });
     };
 
+    const handleRoomUpdate = (updatedRoom) => {
+        setRoom((prevRoom) => ({
+            ...prevRoom,
+            ...updatedRoom, // Обновляем только измененные поля
+        }));
+    };
+
+
     const checkPassword = () => {
-        axios.post(`http://localhost:8080/api/rooms/${id}/check-password`, { password }, {
-            headers: { Authorization: `Bearer ${token}` },
-        }).then(response => {
-            if (response.data) {
-                setAccessGranted(true);
-                loadRoomDetails();
-                connectToRoom();
-                localStorage.setItem("accessGranted", true);
-            } else {
-                alert("Неверный пароль");
-            }
-        }).catch(error => {
-            console.error("Ошибка при проверке пароля:", error);
-        });
+        axios
+            .post(
+                `http://localhost:8080/api/rooms/${id}/check-password`,
+                { password },
+                { headers: { Authorization: `Bearer ${token}` } }
+            )
+            .then((response) => {
+                if (response.data) {
+                    setAccessGranted(true);
+                    connectToRoom();
+                } else {
+                    toast.error("Неверный пароль.");
+                }
+            })
+            .catch((error) => {
+                console.error("Ошибка при проверке пароля:", error);
+                toast.error("Ошибка проверки пароля.");
+            });
     };
 
     const disconnectFromRoom = () => {
         if (stompClient && connected) {
-            stompClient.send("/app/leave", {}, JSON.stringify({ username, roomId: id, type: "LEAVE" }));
+            stompClient.send(
+                "/app/leave",
+                {},
+                JSON.stringify({ username, roomId: id, type: "LEAVE" })
+            );
             stompClient.disconnect(() => {
                 setConnected(false);
-                console.log("Disconnected from WebSocket");
             });
         }
     };
+
+    useEffect(() => {
+        loadRoomDetails();
+
+        return () => {
+            if (connected) disconnectFromRoom();
+        };
+    }, [id]);
 
     const handleVideoUrlChange = (e) => setVideoUrl(e.target.value);
 
@@ -169,11 +209,16 @@ const Room = () => {
         axios.delete(`http://localhost:8080/api/rooms/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
         }).then(() => {
-            alert("Комната удалена");
+            toast.success("Комната успешно удалена!");
             navigate("/");
-        }).catch(error => {
+        }).catch((error) => {
             console.error("Ошибка при удалении комнаты:", error);
+            toast.error("Не удалось удалить комнату.");
         });
+    };
+
+    const toggleDeleteModal = () => {
+        setIsConfirmDeleteOpen((prev) => !prev);
     };
 
     const copyRoomLink = () => {
@@ -188,6 +233,10 @@ const Room = () => {
 
     const toggleParticipantsModal = () => {
         setIsParticipantsModalOpen(!isParticipantsModalOpen);
+    };
+
+    const toggleSettingsModal = () => {
+        setIsSettingsModalOpen(!isSettingsModalOpen);
     };
 
     const removeParticipant = (participant) => {
@@ -206,39 +255,48 @@ const Room = () => {
         toast.error("Ошибка воспроизведения видео. Проверьте URL или попробуйте снова.");
     };
 
-    if (!accessGranted) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800 text-black dark:text-white">
-                <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold mb-4">Введите пароль для входа в комнату</h2>
-                    <h3 className="text-lg mb-4"></h3>
-                    <input
-                        type="password"
-                        className="w-full mb-4 p-2 rounded focus:outline-none focus:border-blue-500 bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                        placeholder="Пароль"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button
-                        onClick={checkPassword}
-                        className="bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
-                    >
-                        Войти
-                    </button>
-                    <button
-                        onClick={handleCancel}
-                        className="bg-red-600 dark:bg-red-500 text-white py-2 px-4 ml-2 rounded-md hover:bg-red-700 dark:hover:bg-red-400 transition-colors"
-                    >
-                        Отмена
-                    </button>
-                </div>
-            </div>
-        );
+    if (!room) {
+        return <p>Загрузка комнаты...</p>;
     }
 
-    if (!room) return <p className="text-gray-500 dark:text-gray-300">Загрузка...</p>;
-
-    const isOwner = username === room.owner;
+    if (!accessGranted) {
+        if (room.hasPassword) {
+            return (
+                <div className="flex items-center justify-center min-h-screen bg-gray-200 dark:bg-gray-800">
+                    <div className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg max-w-md w-full">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-6">
+                            Защищённая комната
+                        </h2>
+                        <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+                            Для входа в эту комнату требуется пароль
+                        </p>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full mb-4 p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                            placeholder="Введите пароль"
+                        />
+                        <div className="flex">
+                            <button
+                                onClick={handleCancel}
+                                className="w-full py-3 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-all duration-200 mr-2"
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                onClick={checkPassword}
+                                className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-200"
+                            >
+                                Войти
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    }
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -249,8 +307,6 @@ const Room = () => {
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{room.name}</h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Создатель: {room.owner}</p>
                     </div>
-
-                    {/* Участники */}
                     <div className="flex flex-col">
                         <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                             Участники ({participants.length})
@@ -258,13 +314,11 @@ const Room = () => {
                         <div className="flex -space-x-3">
                             {participants.slice(0, 3).map((participant, index) => (
                                 <div key={index} className="relative group">
-                                    {/* Аватар */}
                                     <img
                                         src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
                                         alt={`${participant} avatar`}
                                         className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-900"
                                     />
-                                    {/* Информация при наведении */}
                                     <div
                                         className="absolute top-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-white dark:bg-gray-800 text-center rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                     >
@@ -280,7 +334,6 @@ const Room = () => {
                                     </div>
                                 </div>
                             ))}
-                            {/* Кнопка "Еще" */}
                             {participants.length > 3 && (
                                 <button
                                     className="flex items-center justify-center w-7 h-7 rounded-full border-2 border-white dark:border-gray-900 bg-gray-200 dark:bg-gray-700 text-sm text-gray-800 dark:text-white ml-2"
@@ -292,7 +345,6 @@ const Room = () => {
                         </div>
                     </div>
 
-                    {/* Модальное окно */}
                     {isParticipantsModalOpen && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-80 max-w-full">
@@ -334,6 +386,18 @@ const Room = () => {
                 </div>
 
                 <div className="flex items-center space-x-3">
+                    {room.owner === username && (
+                        <button
+                            onClick={toggleSettingsModal}
+                            className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-fuchsia-600 dark:hover:text-fuchsia-400 rounded-full hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900 transition-all duration-300 overflow-hidden"
+                        >
+                            <i className="fas fa-cog text-xl ml-4"></i>
+                            <span
+                                className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm">
+                                Настройки
+                        </span>
+                        </button>
+                    )}
                     <button
                         onClick={toggleModal}
                         className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900 transition-all duration-300 overflow-hidden"
@@ -356,7 +420,7 @@ const Room = () => {
                     </button>
                     {room.owner === username && (
                         <button
-                            onClick={deleteRoom}
+                            onClick={toggleDeleteModal}
                             className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition-all duration-300 overflow-hidden"
                         >
                             <i className="fas fa-trash-alt text-xl ml-4"></i>
@@ -404,41 +468,102 @@ const Room = () => {
                             </button>
                         </div>
                     )}
-                    {isOwner && isModalOpen && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                            <div
-                                className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                                <h3 className="text-xl font-semibold mb-4">Обновить URL видео</h3>
-                                <input
-                                    type="text"
-                                    value={videoUrl}
-                                    onChange={handleVideoUrlChange}
-                                    placeholder="Введите URL видео"
-                                    className="w-full mb-4 p-2 rounded focus:outline-none focus:border-blue-500 bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                                />
-                                <button
-                                    onClick={() => {
-                                        updateVideoUrl();
-                                        toggleModal();
-                                    }}
-                                    className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
+
+                    <AnimatePresence>
+                    {isModalOpen && (
+                            <motion.div
+                                className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <motion.div
+                                    className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 rounded-lg shadow-lg max-w-sm w-full"
+                                    initial={{ scale: 0.8 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0.8 }}
                                 >
-                                    Обновить
-                                </button>
-                                <button
-                                    onClick={toggleModal}
-                                    className="mt-4 w-full text-center text-red-600 dark:text-red-400"
-                                >
-                                    Закрыть
-                                </button>
-                            </div>
-                        </div>
+                                    <h3 className="text-xl font-semibold mb-4">Обновить URL видео</h3>
+                                    <input
+                                        type="text"
+                                        value={videoUrl}
+                                        onChange={handleVideoUrlChange}
+                                        placeholder="Введите URL видео"
+                                        className="w-full mb-4 p-2 rounded focus:outline-none focus:border-blue-500 bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            updateVideoUrl();
+                                            toggleModal();
+                                        }}
+                                        className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
+                                    >
+                                        Обновить
+                                    </button>
+                                    <button
+                                        onClick={toggleModal}
+                                        className="mt-4 w-full text-center text-red-600 dark:text-red-400"
+                                    >
+                                        Закрыть
+                                    </button>
+                                </motion.div>
+                            </motion.div>
                     )}
+                    </AnimatePresence>
+
                 </div>
-                <div className="w-1/4">
+                <div className="w-auto max-w-xl">
                     <Chat stompClient={stompClient} roomId={id} username={username} participants={participants}/>
                 </div>
             </div>
+            <AnimatePresence>
+                {isSettingsModalOpen && (
+                    <SettingsModal
+                        isOpen={isSettingsModalOpen}
+                        onClose={toggleSettingsModal}
+                        roomId={id}
+                        token={token}
+                        onRoomUpdate={handleRoomUpdate}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isConfirmDeleteOpen && (
+                    <motion.div
+                        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                        >
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                                Вы уверены, что хотите удалить эту комнату?
+                            </h2>
+                            <div className="flex gap-4 justify-end">
+                                <button
+                                    onClick={toggleDeleteModal}
+                                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={deleteRoom}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+                                >
+                                    Удалить
+                                </button>
+
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 
