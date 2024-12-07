@@ -212,11 +212,11 @@ const Chat = ({ roomId, username }) => {
             ref={chatContainerRef}
             className={`flex flex-col h-[calc(100vh-80px)] ${
                 isCollapsed ? "w-20 fixed right-0 bottom-0" : "w-[400px]"
-            } bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white relative transition-all duration-300`}
+            } bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-white relative transition-all duration-300`}
             onClick={() => setContextMenu({visible: false, x: 0, y: 0, messageId: null})}
         >
             <div
-                className="flex items-center justify-between p-2 bg-gray-200 dark:bg-gray-700">
+                className="flex items-center justify-between p-2 bg-neutral-200 dark:bg-neutral-700">
                 <div
                     className={`flex items-center transition-all duration-300 ${isCollapsed ? "justify-center" : "gap-2"}`}>
                     <h2 className={`text-lg font-bold ${isCollapsed ? "hidden" : "block"} transition-opacity duration-300`}>Чат</h2>
@@ -226,7 +226,7 @@ const Chat = ({ roomId, username }) => {
                 </div>
                 <button
                     onClick={toggleCollapse}
-                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-indigo-500 hover:text-purple-500 shadow-lg hover:shadow-xl transition-transform transform hover:scale-110 duration-300"
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-neutral-800 text-indigo-500 hover:text-purple-500 shadow-lg hover:shadow-xl transition-transform transform hover:scale-110 duration-300"
                     aria-label="Toggle Collapse"
                 >
                     {isCollapsed ? (
@@ -237,7 +237,7 @@ const Chat = ({ roomId, username }) => {
                 </button>
             </div>
             {!isCollapsed ? (
-                <div className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-800 rounded-t-lg shadow-inner relative">
+                <div className="flex-1 overflow-y-auto p-4 bg-neutral-100 dark:bg-neutral-800 rounded-t-lg shadow-inner relative">
                     {chatMessages.map((msg, index) => {
                         const isSameSenderAsPrevious =
                             index > 0 && chatMessages[index - 1]?.username === msg.username;
@@ -245,7 +245,7 @@ const Chat = ({ roomId, username }) => {
                         return (
                             <React.Fragment key={msg.id}>
                                 {isNewDay(msg.timestamp, chatMessages[index - 1]?.timestamp) && (
-                                    <div className="text-center text-gray-500 dark:text-gray-400 text-xs my-2">
+                                    <div className="text-center text-neutral-500 dark:text-neutral-400 text-xs my-2">
                                         {new Date(msg.timestamp).toLocaleDateString()}
                                     </div>
                                 )}
@@ -266,7 +266,7 @@ const Chat = ({ roomId, username }) => {
                                             exit={{ scale: 0 }}
                                             src={`https://ui-avatars.com/api/?name=${msg.username}&background=random&rounded=true`}
                                             alt={`${msg.username} avatar`}
-                                            className="w-8 h-8 mr-2 rounded-full border-2 border-gray-300 dark:border-gray-600 shadow-lg"
+                                            className="w-8 h-8 mr-2 rounded-full border-2 border-neutral-300 dark:border-neutral-600 shadow-lg"
                                             title={msg.username}
                                         />
                                     )}
@@ -285,7 +285,7 @@ const Chat = ({ roomId, username }) => {
                                             className={`relative p-2 rounded-xl shadow-md text-sm min-w-32 ${
                                                 msg.username === username
                                                     ? "bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-tr-none"
-                                                    : "bg-white text-gray-800 rounded-tl-none dark:bg-gray-700 dark:text-gray-200"
+                                                    : "bg-white text-neutral-800 rounded-tl-none dark:bg-neutral-700 dark:text-neutral-200"
                                             }`}
                                         >
                                             {msg.parentMessage && (
@@ -298,7 +298,7 @@ const Chat = ({ roomId, username }) => {
                                                 <Linkify>
                                                     <p className="break-words whitespace-pre-wrap">{msg.encryptedContent}</p>
                                                 </Linkify>
-                                                <span className="text-xs dark:text-white justify-end ml-8 mt-auto">
+                                                <span className="flex text-xs dark:text-neutral-400 justify-end mt-auto ml-auto">
                                                     {formatDate(msg.timestamp)}
                                                 </span>
                                             </div>
@@ -311,7 +311,7 @@ const Chat = ({ roomId, username }) => {
                     {showScrollButton && (
                         <button
                             onClick={scrollToBottom}
-                            className="absolute bottom-20 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+                            className="absolute bottom-20 right-4 text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-300 transition-colors"
                         >
                             <i className="fas fa-arrow-down"></i>
                         </button>
@@ -329,12 +329,12 @@ const Chat = ({ roomId, username }) => {
                         initial={{opacity: 0, scale: 0.9}}
                         animate={{opacity: 1, scale: 1}}
                         exit={{opacity: 0, scale: 0.9}}
-                        className="absolute bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg p-2 text-white w-52"
+                        className="absolute bg-neutral-200 dark:bg-neutral-700 rounded-lg shadow-lg p-2 text-white w-52"
                         style={{top: contextMenu.y, left: contextMenu.x}}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="block w-full text-left px-3 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-300 hover:rounded-lg dark:hover:bg-gray-600 transition-all duration-300"
+                            className="block w-full text-left px-3 py-2 text-gray-800 dark:text-neutral-200 hover:bg-neutral-300 hover:rounded-lg dark:hover:bg-neutral-600 transition-all duration-300"
                             onClick={() => handleReply(contextMenu.messageId)}
                         >
                             <i className="fas fa-reply mr-2"></i> Ответить
@@ -365,7 +365,7 @@ const Chat = ({ roomId, username }) => {
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.9 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-6 rounded-2xl shadow-lg max-w-[350px] w-full"
+                            className="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white p-6 rounded-2xl shadow-lg max-w-[350px] w-full"
                         >
                             <h3 className="text-2xl font-semibold mb-4">Удалить сообщение?</h3>
                             <p className="text-sm mb-6">
@@ -373,7 +373,7 @@ const Chat = ({ roomId, username }) => {
                             </p>
                             <div className="flex justify-end items-center space-x-4">
                                 <button
-                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-300 py-2 px-6 rounded-md text-sm transition-all duration-200 ease-in-out"
+                                    className="bg-gray-300 hover:bg-neutral-400 text-neutral-800  py-2 px-6 rounded-md text-sm transition-all duration-200 ease-in-out"
                                     onClick={() => setDeleteModal({ visible: false, messageId: null })}
                                 >
                                     Отмена
@@ -395,19 +395,19 @@ const Chat = ({ roomId, username }) => {
                     initial={{opacity: 0, y: -10}}
                     animate={{opacity: 1, y: 0}}
                     exit={{opacity: 0, y: -10}}
-                    className="flex w-full max-w-lg items-center bg-white dark:bg-gray-700 border-l-4 border-purple-500 px-4 py-3 rounded-md shadow-lg"
+                    className="flex w-full max-w-lg items-center bg-white dark:bg-neutral-700 border-l-4 border-purple-500 px-4 py-3 rounded-md shadow-lg"
                 >
                     <div className="flex-1 overflow-hidden">
-                    <span className="block text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                    <span className="block text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">
                         Ответ на:
                     </span>
-                        <span className="block text-sm text-gray-600 dark:text-gray-300 truncate">
+                        <span className="block text-sm text-neutral-600 dark:text-neutral-300 truncate">
                         {replyTo.encryptedContent}
                     </span>
                     </div>
                     <button
                         onClick={() => setReplyTo(null)}
-                        className="ml-3 flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-100 transition duration-200"
+                        className="ml-3 flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 hover:text-neutral-800 dark:hover:text-neutral-100 transition duration-200"
                         aria-label="Удалить ответ"
                     >
                         <i className="fas fa-times text-base"></i>
@@ -416,10 +416,10 @@ const Chat = ({ roomId, username }) => {
             )}
 
             {!isCollapsed && (
-                <div className="bg-gray-200 dark:bg-gray-900 p-2 rounded-b-lg shadow-inner flex items-end space-x-2">
+                <div className="bg-neutral-200 dark:bg-neutral-900 p-2 rounded-b-lg shadow-inner flex items-end space-x-2">
                 <textarea
                     ref={textareaRef}
-                    className="flex-grow bg-gray-100 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-white p-3 rounded-xl shadow focus:outline-none resize-none overflow-y-auto"
+                    className="flex-grow bg-neutral-100 border border-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 text-neutral-800 dark:text-white p-3 rounded-xl shadow focus:outline-none resize-none overflow-y-auto"
                     placeholder="Введите сообщение"
                     value={chatMessage}
                     onChange={handleMessageChange}

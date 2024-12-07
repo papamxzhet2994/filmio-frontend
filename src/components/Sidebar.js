@@ -42,16 +42,16 @@ const Sidebar = () => {
         <div className="relative flex">
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute top-4 left-full transform -translate-x-1/2 bg-gray-100 dark:bg-gray-900 text-black dark:text-white rounded-full p-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-10"
+                className="absolute top-4 left-full transform -translate-x-1/2 bg-gray-100 dark:bg-neutral-900 text-black dark:text-white rounded-full p-2 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors z-10"
             >
                 {isCollapsed ? <i className="fas fa-chevron-right"></i> : <i className="fas fa-chevron-left"></i>}
             </button>
 
             <div
-                className={`bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 ${isCollapsed ? "w-24" : "w-96"} transition-all duration-300 flex flex-col h-screen`}
+                className={`bg-gray-100 dark:bg-neutral-900 text-gray-700 dark:text-gray-300 ${isCollapsed ? "w-24" : "w-96"} transition-all duration-300 flex flex-col h-screen`}
             >
                 {!isCollapsed && (
-                    <div className="p-4 border-b border-gray-300 dark:border-gray-800">
+                    <div className="p-4 border-b border-neutral-300 dark:border-neutral-800">
                         <h1 className="text-3xl font-bold text-black dark:text-white">Комнаты</h1>
                     </div>
                 )}
@@ -62,7 +62,7 @@ const Sidebar = () => {
                             <li key={room.id}>
                                 <Link
                                     to={`/rooms/${room.id}`}
-                                    className={`flex items-center p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors ${isCollapsed ? "justify-center" : ""}`}
+                                    className={`flex items-center p-3 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors ${isCollapsed ? "justify-center" : ""}`}
                                 >
                                     <div
                                         className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-black dark:text-white">
@@ -72,11 +72,11 @@ const Sidebar = () => {
                                         <div className="ml-4">
                                             <div className="flex items-center space-x-2">
                                                 <p>{room.name}</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-500"></i> : <i className="fas fa-lock-open mr-1 text-blue-500"></i> }
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-blue-700"></i> }
                                                 </p>
                                             </div>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                                 {room.isClosed ? "Закрытая" : "Открытая"} |
                                                 Участников: {room.participantCount}
                                             </p>
@@ -88,12 +88,12 @@ const Sidebar = () => {
                     </ul>
                 ) : (
                     <div className="flex-1 p-4 flex items-center justify-center">
-                        <p className="text-gray-400 dark:text-gray-500">Войдите в аккаунт, чтобы увидеть список
+                        <p className="text-neutral-400 dark:text-neutral-500">Войдите в аккаунт, чтобы увидеть список
                             комнат.</p>
                     </div>
                 )}
 
-                <div className="p-4 border-t border-gray-300 dark:border-gray-800 flex items-center justify-between">
+                <div className="p-4 border-t border-neutral-300 dark:border-neutral-800 flex items-center justify-between">
                     {token ? (
                         <div className={`flex items-center ${isCollapsed ? "justify-center ml-2" : "space-x-3"}`}>
                             {isCollapsed && (
@@ -134,9 +134,12 @@ const Sidebar = () => {
                     {token && !isCollapsed && (
                         <Link
                             to="/create-room"
-                            className="px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                            className="relative flex items-center justify-center w-10 h-10 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 group"
                         >
-                            <i className="fas fa-plus"></i>
+                            <i className="fas fa-plus text-lg"></i>
+                            <span className="absolute top-1/2 left-full transform -translate-y-1/2 ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 text-sm font-medium bg-neutral-900 text-white py-1 px-2 rounded-md shadow-lg transition-all duration-200 whitespace-nowrap">
+                                Создать комнату
+                            </span>
                         </Link>
                     )}
                 </div>

@@ -52,48 +52,52 @@ const Register = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700">
-                <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">Регистрация</h2>
+        <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-300 dark:border-neutral-700">
+                <h2 className="text-3xl font-bold text-center text-neutral-900 dark:text-white">Регистрация</h2>
                 {error && <p className="text-red-600 dark:text-red-400 text-center">{error}</p>}
                 <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">Имя пользователя</label>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">Имя пользователя</label>
                         <input
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            className="mt-1 block w-full px-4 py-3 border border-netural-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            placeholder="Введите имя"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">E-mail</label>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">E-mail</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            placeholder="Введите почту"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">Пароль</label>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">Пароль</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            placeholder="Введите пароль"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">Повторите пароль</label>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">Повторите пароль</label>
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                            placeholder="Повторите пароль"
                             required
                         />
                     </div>
@@ -105,7 +109,7 @@ const Register = () => {
                         Зарегистрироваться
                     </button>
                 </form>
-                <p className="text-center text-gray-600 dark:text-gray-400">
+                <p className="text-center text-neutral-600 dark:text-neutral-400">
                     Уже есть аккаунт?{" "}
                     <Link
                         to="/login"

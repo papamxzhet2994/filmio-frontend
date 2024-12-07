@@ -142,6 +142,17 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                     </button>
                 </div>
             </motion.div>
+            <motion.div
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", transition: { type: "spring", stiffness: 80, damping: 15 }, opacity: 0 }}
+                className="absolute bottom-0 left-0">
+                <img
+                    src="/logo2.svg"
+                    alt="Logo"
+                    className="w-24 h-24"
+                />
+            </motion.div>
         </motion.div>
     );
 };

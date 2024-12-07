@@ -53,9 +53,10 @@ const RoomsList = () => {
 
     if (!token) {
         return (
-            <div className="flex items-center min-h-screen bg-gray-200 dark:bg-gray-800 text-white flex-col">
-                <h2 className="text-2xl font-bold mb-4 text-gray-600 dark:text-gray-400">Доступ запрещен</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 text-center max-w-lg">
+            <div className="flex justify-center items-center min-h-screen bg-neutral-200 dark:bg-neutral-800 text-white flex-col">
+                <img src='/logo.svg' alt="Logo" className="w-32 mb-8" />
+                <h2 className="text-2xl font-bold mb-4 text-neutral-600 dark:text-neutral-400">Доступ запрещен</h2>
+                <p className="text-neutral-600 dark:text-neutral-400 mb-6 text-center max-w-lg">
                     У вас нет доступа к списку комнат. Пожалуйста, войдите в систему, чтобы продолжить.
                 </p>
                 <Link
@@ -70,7 +71,7 @@ const RoomsList = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+            <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white">
                 <p className="text-xl">Загрузка комнат...</p>
             </div>
         );
@@ -78,20 +79,20 @@ const RoomsList = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+            <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white">
                 <p className="text-xl text-red-600 dark:text-red-500">{error}</p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 dark:bg-gray-800 text-black dark:text-white p-6">
+        <div className="flex flex-col items-center justify-start min-h-screen bg-neutral-50 dark:bg-neutral-800 text-black dark:text-white p-6">
             <h2 className="text-3xl font-bold mb-6">Доступные комнаты</h2>
             <ul className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {rooms.map(room => (
                     <li
                         key={room.id}
-                        className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        className="bg-neutral-100 dark:bg-neutral-900 p-4 rounded-lg shadow-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                     >
                         <Link to={`/rooms/${room.id}`} className="flex items-center space-x-4">
                             <div

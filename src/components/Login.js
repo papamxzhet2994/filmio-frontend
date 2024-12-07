@@ -41,11 +41,11 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700">
+        <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-300 dark:border-neutral-700">
                 {isAuthenticated ? (
                     <div className="text-center">
-                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                        <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
                             Вы уже вошли в систему
                         </h2>
                         <button
@@ -57,7 +57,7 @@ const Login = () => {
                     </div>
                 ) : (
                     <>
-                        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
+                        <h2 className="text-3xl font-bold text-center text-neutral-900 dark:text-white">
                             Вход в аккаунт
                         </h2>
                         {errorMessage && (
@@ -67,26 +67,28 @@ const Login = () => {
                         )}
                         <form onSubmit={handleLogin} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">
                                     Имя пользователя
                                 </label>
                                 <input
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    placeholder="Введите имя пользователя"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">
                                     Пароль
                                 </label>
                                 <input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    placeholder="Введите пароль"
                                     required
                                 />
                             </div>

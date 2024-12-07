@@ -157,36 +157,36 @@ const Profile = () => {
     if (!user) return <p>Загрузка...</p>;
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
             <Toaster position="top-right"/>
             <Link
                 to="/"
-                className="absolute top-4 left-4 text-gray-900 dark:text-white hover:text-blue-500 dark:hover:text-[#7289DA]"
+                className="absolute top-4 left-4 text-neutral-900 dark:text-white hover:text-blue-500 dark:hover:text-[#7289DA]"
             >
                 <i className="fas fa-chevron-left text-xl"></i>
             </Link>
             <motion.div
-                className="w-full lg:w-1/5 bg-gray-100 dark:bg-gray-900 p-4 space-y-4"
+                className="w-full lg:w-1/5 bg-neutral-100 dark:bg-neutral-900 p-4 space-y-4"
                 initial={{opacity: 0}}
                 animate={{opacity: 1}}
                 exit={{opacity: 0}}
                 transition={{duration: 0.3}}
             >
                 <img
-                    src={avatarPreview || "/default-avatar.png"}
+                    src={avatarPreview || "/logo.svg"}
                     alt="Avatar"
                     className="w-24 h-24 rounded-full mx-auto object-cover"
                 />
                 <div className="text-center">
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{user.username}</h1>
-                    <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
+                    <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">{user.username}</h1>
+                    <p className="text-neutral-600 dark:text-neutral-400">{user.email}</p>
                 </div>
                 <ul className="space-y-2">
                     <li>
                         <button
                             onClick={() => setCurrentPage("profile")}
-                            className={`w-full py-2 px-4 text-left rounded hover:bg-gray-200 dark:hover:bg-gray-800 focus:outline-none ${
-                                currentPage === "profile" ? "bg-gray-200 dark:bg-gray-800" : ""
+                            className={`w-full py-2 px-4 text-left rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none ${
+                                currentPage === "profile" ? "bg-neutral-200 dark:bg-neutral-800" : ""
                             }`}
                         >
                             Профиль
@@ -195,8 +195,8 @@ const Profile = () => {
                     <li>
                         <button
                             onClick={() => setCurrentPage("settings")}
-                            className={`w-full py-2 px-4 text-left rounded hover:bg-gray-200 dark:hover:bg-gray-800 focus:outline-none ${
-                                currentPage === "settings" ? "bg-gray-200 dark:bg-gray-800" : ""
+                            className={`w-full py-2 px-4 text-left rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none ${
+                                currentPage === "settings" ? "bg-neutral-200 dark:bg-neutral-800" : ""
                             }`}
                         >
                             Настройки
@@ -223,7 +223,7 @@ const Profile = () => {
                         transition={{ duration: 0.4, ease: "easeOut" }}
                     >
                         <motion.div
-                            className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+                            className="relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
                             initial={{ y: -50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: -50, opacity: 0 }}
@@ -233,17 +233,17 @@ const Profile = () => {
                                 <i className="fas fa-sign-out-alt text-4xl text-white"></i>
                             </div>
                             <div className="p-6 text-center">
-                                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                <h3 className="text-2xl font-bold text-neutral-800 dark:text-white">
                                     Подтвердите выход
                                 </h3>
-                                <p className="text-gray-600 dark:text-gray-400 mt-3">
+                                <p className="text-neutral-600 dark:text-neutral-400 mt-3">
                                     Вы уверены, что хотите завершить сеанс? Все несохраненные изменения будут потеряны.
                                 </p>
                             </div>
-                            <div className="flex justify-between items-center p-6 bg-gray-100 dark:bg-gray-800">
+                            <div className="flex justify-between items-center p-6 bg-neutral-100 dark:bg-neutral-800">
                                 <button
                                     onClick={() => setIsLogoutModalVisible(false)}
-                                    className="px-4 py-2 rounded-lg font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                    className="px-4 py-2 rounded-lg font-medium bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                 >
                                     Отмена
                                 </button>
@@ -260,10 +260,10 @@ const Profile = () => {
             </AnimatePresence>
 
 
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg w-full lg:w-4/5 shadow-lg">
+            <div className="p-6 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-full lg:w-4/5 shadow-lg">
                 {currentPage === "profile" && (
-                    <div className="dark:bg-gray-900 p-4 rounded-lg">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Профиль</h2>
+                    <div className="dark:bg-neutral-900 p-4 rounded-lg">
+                        <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">Профиль</h2>
                         <div className="flex items-center gap-4 mb-6">
                             {avatarPreview && (
                                 <img
@@ -273,12 +273,12 @@ const Profile = () => {
                                 />
                             )}
                             <div>
-                                <p className="text-gray-600 dark:text-gray-400">
+                                <p className="text-neutral-600 dark:text-neutral-400">
                                     Имя пользователя: <strong
-                                    className="text-gray-900 dark:text-white">{user.username}</strong>
+                                    className="text-neutral-900 dark:text-white">{user.username}</strong>
                                 </p>
-                                <p className="text-gray-600 dark:text-gray-400">
-                                    Email: <strong className="text-gray-900 dark:text-white">{user.email}</strong>
+                                <p className="text-neutral-600 dark:text-neutral-400">
+                                    Email: <strong className="text-neutral-900 dark:text-white">{user.email}</strong>
                                 </p>
                             </div>
                         </div>
@@ -290,8 +290,8 @@ const Profile = () => {
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-lg file:border-0
                             file:text-sm file:font-semibold
-                            file:bg-gray-200 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-gray-200
-                            hover:file:bg-gray-300 dark:hover:file:bg-gray-600"
+                            file:bg-neutral-200 dark:file:bg-neutral-700 file:text-neutral-700 dark:file:text-neutral-200
+                            hover:file:bg-neutral-300 dark:hover:file:bg-neutral-600"
                             />
                             <div className="flex mt-4 gap-2">
                                 <button
@@ -309,13 +309,13 @@ const Profile = () => {
                             </div>
                         </div>
                         <div className="mb-6">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Ваши социальные
+                            <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Ваши социальные
                                 сети</h3>
                             <ul className="space-y-4">
                                 {links.map((link) => (
                                     <li
                                         key={link.id}
-                                        className="flex items-center justify-between p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                        className="flex items-center justify-between p-4 bg-neutral-200 dark:bg-neutral-700 rounded-lg shadow-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                     >
                                         <div className="flex items-center space-x-4">
                                             <i className="fa-solid fa-share-nodes text-blue-500 dark:text-blue-400 text-lg"></i>
@@ -328,7 +328,7 @@ const Profile = () => {
                                                 >
                                                     {link.name}
                                                 </a>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">{link.url}</p>
+                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{link.url}</p>
                                             </div>
                                         </div>
                                         <div className="flex space-x-3">
@@ -345,7 +345,7 @@ const Profile = () => {
                             <div className="mt-6">
                                 <h3
                                     onClick={() => setIsLinkSectionOpen(!isLinkSectionOpen)}
-                                    className="cursor-pointer text-2xl font-bold text-gray-900 dark:text-white mb-4 flex justify-between"
+                                    className="cursor-pointer text-2xl font-bold text-neutral-900 dark:text-white mb-4 flex justify-between"
                                 >
                                     Добавить новую ссылку
                                     <span>
@@ -364,14 +364,14 @@ const Profile = () => {
                                             placeholder="Название ссылки"
                                             value={newLink.name}
                                             onChange={(e) => setNewLink({...newLink, name: e.target.value})}
-                                            className="block w-full text-sm text-gray-900 dark:text-gray-200 mb-2 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                                            className="block w-full text-sm text-neutral-900 dark:text-neutral-200 mb-2 p-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
                                         />
                                         <input
                                             type="url"
                                             placeholder="URL"
                                             value={newLink.url}
                                             onChange={(e) => setNewLink({...newLink, url: e.target.value})}
-                                            className="block w-full text-sm text-gray-900 dark:text-gray-200 mb-4 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                                            className="block w-full text-sm text-neutral-900 dark:text-neutral-200 mb-4 p-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
                                         />
                                         <button
                                             onClick={handleAddLink}

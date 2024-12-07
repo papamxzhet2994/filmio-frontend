@@ -262,25 +262,32 @@ const Room = () => {
     if (!accessGranted) {
         if (room.hasPassword) {
             return (
-                <div className="flex items-center justify-center min-h-screen bg-gray-200 dark:bg-gray-800">
-                    <div className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg max-w-md w-full">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-6">
-                            Защищённая комната
+                <div className="flex items-center justify-center min-h-screen bg-neutral-200 dark:bg-neutral-800">
+                    <div className="bg-white dark:bg-neutral-900 p-8 rounded-xl shadow-lg max-w-md w-full">
+                        <div className="flex items-center justify-center mb-6">
+                            <img
+                                src="/logo.svg"
+                                alt="Logo"
+                                className="w-32 h-32"
+                            />
+                        </div>
+                        <h2 className="text-3xl font-bold text-neutral-900 dark:text-white text-center mb-6">
+                            {room.name || "Защищённая комната"}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+                        <p className="text-neutral-600 dark:text-gray-300 text-center mb-6">
                             Для входа в эту комнату требуется пароль
                         </p>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full mb-4 p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                            className="w-full mb-4 p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-fuchsia-900 bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                             placeholder="Введите пароль"
                         />
-                        <div className="flex">
+                        <div className="flex mb-4">
                             <button
                                 onClick={handleCancel}
-                                className="w-full py-3 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-all duration-200 mr-2"
+                                className="w-full py-3 bg-neutral-200 dark:bg-neutral-600 text-neutral-900 dark:text-neutral-100 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-all duration-200 mr-2"
                             >
                                 Отмена
                             </button>
@@ -291,6 +298,12 @@ const Room = () => {
                                 Войти
                             </button>
                         </div>
+                        <button
+                            onClick={copyRoomLink}
+                            className="w-full py-2 bg-neutral-200 dark:bg-neutral-600 text-neutral-900 dark:text-neutral-100 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-all duration-200"
+                        >
+                            Скопировать ссылку на комнату
+                        </button>
                     </div>
                 </div>
             );
@@ -301,14 +314,14 @@ const Room = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <div
-                className="bg-gray-100 dark:bg-gray-900 text-black dark:text-white p-4 flex justify-between items-center shadow-md">
+                className="bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white p-4 flex justify-between items-center shadow-md">
                 <div className="flex items-start gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{room.name}</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Создатель: {room.owner}</p>
+                        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{room.name}</h2>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">Создатель: {room.owner}</p>
                     </div>
                     <div className="flex flex-col">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                        <h3 className="text-sm font-medium text-neutral-900 dark:text-white">
                             Участники ({participants.length})
                         </h3>
                         <div className="flex -space-x-3">
@@ -317,12 +330,12 @@ const Room = () => {
                                     <img
                                         src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
                                         alt={`${participant} avatar`}
-                                        className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-900"
+                                        className="w-7 h-7 rounded-full border-2 border-white dark:border-neutral-900"
                                     />
                                     <div
-                                        className="absolute top-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-white dark:bg-gray-800 text-center rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                        className="absolute top-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-white dark:bg-neutral-800 text-center rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                     >
-                                        <span className="text-sm text-gray-900 dark:text-white">{participant}</span>
+                                        <span className="text-sm text-neutral-900 dark:text-white">{participant}</span>
                                         {room.owner === username && (
                                             <button
                                                 className="block mt-1 text-xs text-red-600 dark:text-red-400 hover:underline"
@@ -336,7 +349,7 @@ const Room = () => {
                             ))}
                             {participants.length > 3 && (
                                 <button
-                                    className="flex items-center justify-center w-7 h-7 rounded-full border-2 border-white dark:border-gray-900 bg-gray-200 dark:bg-gray-700 text-sm text-gray-800 dark:text-white ml-2"
+                                    className="flex items-center justify-center w-7 h-7 rounded-full border-2 border-white dark:border-neutral-900 bg-gray-200 dark:bg-neutral-700 text-sm text-neutral-800 dark:text-white ml-2"
                                     onClick={toggleParticipantsModal}
                                 >
                                     <i className="fas fa-ellipsis-h"></i>
@@ -347,22 +360,22 @@ const Room = () => {
 
                     {isParticipantsModalOpen && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-80 max-w-full">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                            <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-lg w-80 max-w-full">
+                                <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
                                     Все участники
                                 </h3>
                                 <div className="flex flex-col gap-2 mt-2">
                                     {participants.map((participant, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-md"
+                                            className="flex items-center gap-2 p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md"
                                         >
                                             <img
                                                 src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
                                                 alt={`${participant} avatar`}
                                                 className="w-8 h-8 rounded-full"
                                             />
-                                            <span className="text-sm text-gray-900 dark:text-white">{participant}</span>
+                                            <span className="text-sm text-neutral-900 dark:text-white">{participant}</span>
                                             {room.owner === username && (
                                                 <button
                                                     className="ml-auto text-xs text-red-600 dark:text-red-400 hover:underline"
@@ -389,7 +402,7 @@ const Room = () => {
                     {room.owner === username && (
                         <button
                             onClick={toggleSettingsModal}
-                            className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-fuchsia-600 dark:hover:text-fuchsia-400 rounded-full hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900 transition-all duration-300 overflow-hidden"
+                            className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-fuchsia-600 dark:hover:text-fuchsia-400 rounded-full hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900 transition-all duration-300 overflow-hidden"
                         >
                             <i className="fas fa-cog text-xl ml-4"></i>
                             <span
@@ -400,7 +413,7 @@ const Room = () => {
                     )}
                     <button
                         onClick={toggleModal}
-                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900 transition-all duration-300 overflow-hidden"
+                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900 transition-all duration-300 overflow-hidden"
                     >
                         <i className="fas fa-edit text-xl ml-4"></i>
                         <span
@@ -410,7 +423,7 @@ const Room = () => {
                     </button>
                     <button
                         onClick={copyRoomLink}
-                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-green-600 dark:hover:text-green-400 rounded-full hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-300 overflow-hidden"
+                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-green-600 dark:hover:text-green-400 rounded-full hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-300 overflow-hidden"
                     >
                         <i className="fas fa-link text-xl ml-4"></i>
                         <span
@@ -421,7 +434,7 @@ const Room = () => {
                     {room.owner === username && (
                         <button
                             onClick={toggleDeleteModal}
-                            className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition-all duration-300 overflow-hidden"
+                            className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition-all duration-300 overflow-hidden"
                         >
                             <i className="fas fa-trash-alt text-xl ml-4"></i>
                             <span
@@ -432,7 +445,7 @@ const Room = () => {
                     )}
                     <button
                         onClick={() => navigate("/")}
-                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 overflow-hidden"
+                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all duration-300 overflow-hidden"
                     >
                         <i className="fas fa-sign-out-alt text-xl ml-4"></i>
                         <span
@@ -458,9 +471,9 @@ const Room = () => {
                             onError={handleVideoError}
                         />
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full bg-gray-200 dark:bg-gray-700">
-                            <i className="fas fa-video text-4xl text-gray-600 dark:text-gray-300"></i>
-                            <p className="text-gray-600 dark:text-gray-300">Видео не найдено. Укажите URL.</p>
+                        <div className="flex flex-col items-center justify-center h-full bg-neutral-200 dark:bg-neutral-700">
+                            <i className="fas fa-video text-4xl text-neutral-600 dark:text-neutral-300"></i>
+                            <p className="text-neutral-600 dark:text-neutral-300">Видео не найдено. Укажите URL.</p>
                             <button
                                 onClick={toggleModal}
                                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500">
@@ -478,7 +491,7 @@ const Room = () => {
                                 exit={{ opacity: 0 }}
                             >
                                 <motion.div
-                                    className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 rounded-lg shadow-lg max-w-sm w-full"
+                                    className="bg-white dark:bg-neutral-800 text-black dark:text-white p-6 rounded-lg shadow-lg max-w-sm w-full"
                                     initial={{ scale: 0.8 }}
                                     animate={{ scale: 1 }}
                                     exit={{ scale: 0.8 }}
@@ -489,7 +502,7 @@ const Room = () => {
                                         value={videoUrl}
                                         onChange={handleVideoUrlChange}
                                         placeholder="Введите URL видео"
-                                        className="w-full mb-4 p-2 rounded focus:outline-none focus:border-blue-500 bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                                        className="w-full mb-4 p-2 rounded focus:outline-none focus:ring-1 focus:ring-fuchsia-900 bg-neutral-200 dark:bg-neutral-700 text-black dark:text-white"
                                     />
                                     <button
                                         onClick={() => {
@@ -502,7 +515,7 @@ const Room = () => {
                                     </button>
                                     <button
                                         onClick={toggleModal}
-                                        className="mt-4 w-full text-center text-red-600 dark:text-red-400"
+                                        className="mt-4 w-full text-center text-red-600 hover:bg-red-600/10 p-2 rounded-md transition-all duration-300 dark:text-red-400"
                                     >
                                         Закрыть
                                     </button>
@@ -537,18 +550,18 @@ const Room = () => {
                         exit={{ opacity: 0 }}
                     >
                         <motion.div
-                            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
+                            className="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg"
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
                         >
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
                                 Вы уверены, что хотите удалить эту комнату?
                             </h2>
                             <div className="flex gap-4 justify-end">
                                 <button
                                     onClick={toggleDeleteModal}
-                                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
+                                    className="px-4 py-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600"
                                 >
                                     Отмена
                                 </button>
