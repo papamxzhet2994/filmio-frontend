@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Cliploader from "react-spinners/ClipLoader";
 
 const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
     const [newPassword, setNewPassword] = useState("");
@@ -78,32 +79,32 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                     stiffness: 100,
                     damping: 20,
                 }}
-                className="w-full max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-gray-800 rounded-t-3xl shadow-lg p-6 flex flex-col"
+                className="w-full max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-lg p-6 flex flex-col"
             >
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Настройки</h2>
+                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Настройки</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-200 dark:bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center focus:outline-none"
+                        className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white bg-neutral-200 dark:bg-neutral-700 rounded-full w-6 h-6 flex items-center justify-center focus:outline-none"
                     >
                         <i className="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 {/* Смена пароля */}
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-gray-900 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-lock mr-2"></i>
                         Сменить пароль
                     </h3>
                     <label htmlFor="newPassword" className="block">
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Введите новый пароль</span>
+                        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Введите новый пароль</span>
                         <input
                             type="password"
                             id="newPassword"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-4 py-3 text-base text-gray-700 dark:text-gray-300 transition duration-150 ease-in-out bg-white dark:bg-gray-900 appearance-none border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Введите новый пароль"
                         />
                     </label>
@@ -112,24 +113,24 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                         disabled={loading}
                         className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
                     >
-                        {loading ? "..." : "Обновить"}
+                        {loading ? <Cliploader size={20} color="white" /> : "Обновить"}
                     </button>
                 </div>
 
                 {/* Обновление имени комнаты */}
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-gray-900 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-edit mr-2"></i>
                         Изменить имя комнаты
                     </h3>
                     <label htmlFor="roomName" className="block">
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Введите новое имя комнаты</span>
+                        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Введите новое имя комнаты</span>
                         <input
                             type="text"
                             id="roomName"
                             value={roomName}
                             onChange={(e) => setRoomName(e.target.value)}
-                            className="w-full px-4 py-3 text-base text-gray-700 dark:text-gray-300 transition duration-150 ease-in-out bg-white dark:bg-gray-900 appearance-none border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Введите новое имя комнаты"
                         />
                     </label>
@@ -138,7 +139,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                         disabled={loading}
                         className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
                     >
-                        {loading ? "..." : "Изменить"}
+                        {loading ? <Cliploader size={20} color="white" /> : "Изменить"}
                     </button>
                 </div>
             </motion.div>
