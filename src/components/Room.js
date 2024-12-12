@@ -30,6 +30,7 @@ const Room = () => {
 
 
     const handleVideoControl = useCallback((control) => {
+        console.log("Обработка события управления видео:", control);
         switch (control.type) {
             case "UPDATE_URL":
                 setVideoUrl(control.videoUrl);
@@ -46,6 +47,7 @@ const Room = () => {
                 }
                 break;
             default:
+                console.warn("Неизвестный тип управления видео:", control.type);
                 break;
         }
     }, []);
@@ -90,9 +92,11 @@ const Room = () => {
                     setParticipants(JSON.parse(message.body));
                 });
                 client.subscribe(`/topic/video/${id}`, (message) => {
+                    console.log("Получено сообщение через WebSocket:", message.body);
                     const videoControl = JSON.parse(message.body);
                     handleVideoControl(videoControl);
                 });
+
 
                 client.send(
                     "/app/join",
@@ -128,6 +132,10 @@ const Room = () => {
                 navigate("/");
             });
     };
+
+    useEffect(() => {
+        loadRoomDetails();
+    }, [id]);
 
     const handleRoomUpdate = (updatedRoom) => {
         setRoom((prevRoom) => ({
@@ -172,38 +180,89 @@ const Room = () => {
     };
 
     useEffect(() => {
-        loadRoomDetails();
-
-        return () => {
-            if (connected) disconnectFromRoom();
-        };
+        axios
+            .get(`http://localhost:8080/api/rooms/${id}/video-state`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+                const state = response.data;
+                console.log("Состояние видео:", state);
+                if (state.videoUrl) {
+                    setVideoUrl(state.videoUrl);
+                    playerRef.current?.seekTo(state.timestamp);
+                    setIsPlaying(state.type === "PLAY");
+                } else {
+                    console.warn("Видео URL не установлен.");
+                }
+            })
+            .catch((error) => {
+                console.error("Ошибка получения состояния видео:", error);
+            });
     }, [id]);
 
-    const handleVideoUrlChange = (e) => setVideoUrl(e.target.value);
+
+    const handleVideoUrlChange = (e) => {
+        setVideoUrl(e.target.value);
+    };
 
     const updateVideoUrl = () => {
+        if (!stompClient) {
+            console.error("WebSocket не подключен");
+            return;
+        }
+
         stompClient.send(`/app/video/${id}`, {}, JSON.stringify({
             roomId: id,
             videoUrl,
-            type: "UPDATE_URL"
+            type: "UPDATE_URL",
+        }));
+
+        setVideoUrl(videoUrl); // Обновление состояния
+    };
+
+    const handlePlay = () => {
+        setIsPlaying(true);
+        if (!stompClient) {
+            console.error("WebSocket не подключен");
+            return;
+        }
+
+        console.log("Отправка события PLAY");
+        stompClient.send(`/app/video/${id}`, {}, JSON.stringify({
+            roomId: id,
+            type: "PLAY",
         }));
     };
 
-    const handlePlay = useCallback(() => {
-        setIsPlaying(true);
-        stompClient.send(`/app/video/${id}`, {}, JSON.stringify({
-            roomId: id,
-            type: "PLAY"
-        }));
-    }, [id, stompClient]);
-
-    const handlePause = useCallback(() => {
+    const handlePause = () => {
         setIsPlaying(false);
+        if (!stompClient) {
+            console.error("WebSocket не подключен");
+            return;
+        }
+
+        console.log("Отправка события PAUSE");
         stompClient.send(`/app/video/${id}`, {}, JSON.stringify({
             roomId: id,
-            type: "PAUSE"
+            type: "PAUSE",
         }));
-    }, [id, stompClient]);
+    };
+
+    const handleSeek = (timestamp) => {
+        if (!stompClient) {
+            console.error("WebSocket не подключен");
+            return;
+        }
+
+        console.log("Отправка события SEEK", timestamp);
+        stompClient.send(`/app/video/${id}`, {}, JSON.stringify({
+            roomId: id,
+            timestamp,
+            type: "SEEK",
+        }));
+    };
+
+
 
     const deleteRoom = () => {
         axios.delete(`http://localhost:8080/api/rooms/${id}`, {
@@ -468,7 +527,7 @@ const Room = () => {
                             height="100%"
                             onPlay={handlePlay}
                             onPause={handlePause}
-                            onError={handleVideoError}
+                            onSeek={(time) => handleSeek(time)}
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full bg-neutral-200 dark:bg-neutral-700">

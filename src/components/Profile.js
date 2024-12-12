@@ -173,9 +173,9 @@ const Profile = () => {
                 transition={{duration: 0.3}}
             >
                 <img
-                    src={avatarPreview || "/logo.svg"}
+                    src={avatarPreview || `https://ui-avatars.com/api/?name=${user.username}&background=random&rounded=true`}
                     alt="Avatar"
-                    className="w-24 h-24 rounded-full mx-auto object-cover"
+                    className="w-24 h-24 rounded-full mx-auto object-cover bg-neutral-200 dark:bg-neutral-800"
                 />
                 <div className="text-center">
                     <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">{user.username}</h1>
@@ -269,13 +269,12 @@ const Profile = () => {
                                 <img
                                     src={avatarPreview}
                                     alt="Avatar"
-                                    className="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-700 object-cover"
+                                    className="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-700 object-cover bg-neutral-200 dark:bg-neutral-800"
                                 />
                             )}
                             <div>
                                 <p className="text-neutral-600 dark:text-neutral-400">
-                                    Имя пользователя: <strong
-                                    className="text-neutral-900 dark:text-white">{user.username}</strong>
+                                    Имя пользователя: <strong className="text-neutral-900 dark:text-white">{user.username}</strong>
                                 </p>
                                 <p className="text-neutral-600 dark:text-neutral-400">
                                     Email: <strong className="text-neutral-900 dark:text-white">{user.email}</strong>
@@ -287,11 +286,11 @@ const Profile = () => {
                                 type="file"
                                 onChange={handleAvatarChange}
                                 className="block w-full text-sm text-gray-400
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-lg file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-neutral-200 dark:file:bg-neutral-700 file:text-neutral-700 dark:file:text-neutral-200
-                            hover:file:bg-neutral-300 dark:hover:file:bg-neutral-600"
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-neutral-200 dark:file:bg-neutral-700 file:text-neutral-700 dark:file:text-neutral-200
+                hover:file:bg-neutral-300 dark:hover:file:bg-neutral-600"
                             />
                             <div className="flex mt-4 gap-2">
                                 <button
@@ -311,46 +310,41 @@ const Profile = () => {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Ваши социальные
                                 сети</h3>
-                            <ul className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 {links.map((link) => (
-                                    <li
+                                    <div
                                         key={link.id}
-                                        className="flex items-center justify-between p-4 bg-neutral-200 dark:bg-neutral-700 rounded-lg shadow-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                                        className="flex items-center p-1 bg-neutral-200 dark:bg-neutral-700 rounded shadow-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                     >
-                                        <div className="flex items-center space-x-4">
-                                            <i className="fa-solid fa-share-nodes text-blue-500 dark:text-blue-400 text-lg"></i>
-                                            <div>
-                                                <a
-                                                    href={link.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-lg text-blue-500 dark:text-blue-400 font-semibold hover:underline"
-                                                >
-                                                    {link.name}
-                                                </a>
-                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{link.url}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex space-x-3">
-                                            <button
-                                                onClick={() => handleDeleteLink(link.id)}
-                                                className="text-xl text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 focus:outline-none"
-                                            >
-                                                <i className="fa-regular fa-trash-can"></i>
-                                            </button>
-                                        </div>
-                                    </li>
+                                        <a
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 font-medium truncate"
+                                        >
+                                            <img
+                                                src={`https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}`}
+                                                alt={link.name}
+                                                className="w-3 h-3"
+                                            />
+                                            <span className="truncate">{link.name}</span>
+                                        </a>
+                                        <button
+                                            onClick={() => handleDeleteLink(link.id)}
+                                            className="ml-auto text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 focus:outline-none"
+                                        >
+                                            <i className="fa-regular fa-trash-can text-xs"></i>
+                                        </button>
+                                    </div>
                                 ))}
-                            </ul>
+                            </div>
                             <div className="mt-6">
                                 <h3
                                     onClick={() => setIsLinkSectionOpen(!isLinkSectionOpen)}
                                     className="cursor-pointer text-2xl font-bold text-neutral-900 dark:text-white mb-4 flex justify-between"
                                 >
                                     Добавить новую ссылку
-                                    <span>
-                                        {isLinkSectionOpen ? '-' : '+'}
-                                    </span>
+                                    <span>{isLinkSectionOpen ? <i className="fas fa-chevron-up"></i> : <i className="fas fa-chevron-down"></i>}</span>
                                 </h3>
                                 {isLinkSectionOpen && (
                                     <motion.div

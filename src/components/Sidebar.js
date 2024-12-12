@@ -27,7 +27,7 @@ const Sidebar = () => {
             },
         })
             .then(response => {
-                setAvatarUrl(response.data.avatarUrl ? `http://localhost:8080${response.data.avatarUrl}` : "https://i.pravatar.cc/300");
+                setAvatarUrl(response.data.avatarUrl ? `http://localhost:8080${response.data.avatarUrl}` : `https://ui-avatars.com/api/?name=${response.data.username}&background=random&rounded=true`);
             })
             .catch(error => console.error("Ошибка при получении информации о пользователе:", error));
     }, [token]);
@@ -66,12 +66,20 @@ const Sidebar = () => {
                                 >
                                     <div
                                         className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-black dark:text-white">
-                                        {room.name.charAt(0).toUpperCase()}
+                                        {/*{room.name.charAt(0).toUpperCase()}*/}
+                                        <img
+                                            src={room.avatarUrl
+                                                ? `http://localhost:8080/${room.avatarUrl}`
+                                                : `https://ui-avatars.com/api/?name=${room.name}&background=random&rounded=true`}
+                                            alt="Avatar"
+                                            className="w-10 h-10 rounded-full object-cover"
+                                        />
+
                                     </div>
                                     {!isCollapsed && (
                                         <div className="ml-4">
                                             <div className="flex items-center space-x-2">
-                                                <p>{room.name}</p>
+                                            <p>{room.name}</p>
                                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                                     {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-blue-700"></i> }
                                                 </p>
@@ -101,7 +109,7 @@ const Sidebar = () => {
                                     <img
                                         src={avatarUrl}
                                         alt="Avatar"
-                                        className="w-10 h-10 rounded-full object-cover"
+                                        className="w-10 h-10 rounded-full object-cover bg-neutral-200 dark:bg-neutral-700"
                                     />
                                 </Link>
                             )}
@@ -110,7 +118,7 @@ const Sidebar = () => {
                                     <img
                                         src={avatarUrl}
                                         alt="Avatar"
-                                        className="w-10 h-10 rounded-full object-cover"
+                                        className="w-10 h-10 rounded-full object-cover bg-neutral-200 dark:bg-neutral-700"
                                     />
                                     <div className="">
                                         <p className="text-black dark:text-white">{username || "User"}</p>

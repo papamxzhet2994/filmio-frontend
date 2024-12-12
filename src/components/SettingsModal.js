@@ -8,6 +8,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
     const [newPassword, setNewPassword] = useState("");
     const [roomName, setRoomName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [avatarFile, setAvatarFile] = useState(null);
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) {
@@ -61,6 +62,43 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
         }
     };
 
+    const handleFileChange = (e) => {
+        setAvatarFile(e.target.files[0]);
+    };
+
+    const handleUploadAvatar = async () => {
+        if (!avatarFile) {
+            toast.error("Выберите файл для загрузки!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", avatarFile);
+
+        setLoading(true);
+        try {
+            const response = await axios.post(
+                `http://localhost:8080/api/rooms/${roomId}/upload-avatar`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+            const updatedRoom = response.data;
+            onRoomUpdate(updatedRoom);
+            toast.success("Аватар успешно загружен!");
+        } catch (error) {
+            console.error("Ошибка при загрузке аватара:", error);
+            toast.error("Не удалось загрузить аватар.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
 
     return (
         <motion.div
@@ -79,7 +117,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                     stiffness: 100,
                     damping: 20,
                 }}
-                className="w-full max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-lg p-6 flex flex-col"
+                className="w-2/3 max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-lg p-6 flex flex-col"
             >
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Настройки</h2>
@@ -142,16 +180,36 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                         {loading ? <Cliploader size={20} color="white" /> : "Изменить"}
                     </button>
                 </div>
+                {/* Загрузка аватара комнаты */}
+                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
+                        <i className="fas fa-upload mr-2"></i>
+                        Загрузить аватар комнаты
+                    </h3>
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className="mb-4 w-full text-sm text-neutral-700 dark:text-neutral-300"
+                    />
+                    <button
+                        onClick={handleUploadAvatar}
+                        disabled={loading}
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                    >
+                        {loading ? <Cliploader size={20} color="white" /> : "Загрузить"}
+                    </button>
+                </div>
+
             </motion.div>
             <motion.div
                 initial={{ y: "100%", opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: "100%", transition: { type: "spring", stiffness: 80, damping: 15 }, opacity: 0 }}
-                className="absolute bottom-0 left-0">
+                className="">
                 <img
                     src="/logo2.svg"
                     alt="Logo"
-                    className="w-24 h-24"
+                    className="w-24 h-24 absolute bottom-0 left-[calc(18%-15px)]"
                 />
             </motion.div>
         </motion.div>
