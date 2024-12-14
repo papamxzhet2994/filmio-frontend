@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Settings from "./Settings";
 import { motion, AnimatePresence } from "framer-motion";
+import SocialIcon from "./SocialIcon";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -310,23 +311,19 @@ const Profile = () => {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Ваши социальные
                                 сети</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 {links.map((link) => (
                                     <div
                                         key={link.id}
-                                        className="flex items-center p-1 bg-neutral-200 dark:bg-neutral-700 rounded shadow-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                                        className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
                                     >
                                         <a
                                             href={link.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 font-medium truncate"
+                                            className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-300 truncate"
                                         >
-                                            <img
-                                                src={`https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}`}
-                                                alt={link.name}
-                                                className="w-3 h-3"
-                                            />
+                                            <SocialIcon service={link.name}/>
                                             <span className="truncate">{link.name}</span>
                                         </a>
                                         <button
@@ -338,13 +335,15 @@ const Profile = () => {
                                     </div>
                                 ))}
                             </div>
+
                             <div className="mt-6">
                                 <h3
                                     onClick={() => setIsLinkSectionOpen(!isLinkSectionOpen)}
                                     className="cursor-pointer text-2xl font-bold text-neutral-900 dark:text-white mb-4 flex justify-between"
                                 >
                                     Добавить новую ссылку
-                                    <span>{isLinkSectionOpen ? <i className="fas fa-chevron-up"></i> : <i className="fas fa-chevron-down"></i>}</span>
+                                    <span>{isLinkSectionOpen ? <i className="fas fa-chevron-up"></i> :
+                                        <i className="fas fa-chevron-down"></i>}</span>
                                 </h3>
                                 {isLinkSectionOpen && (
                                     <motion.div

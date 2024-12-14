@@ -42,7 +42,7 @@ const Sidebar = () => {
         <div className="relative flex">
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute top-4 left-full transform -translate-x-1/2 bg-gray-100 dark:bg-neutral-900 text-black dark:text-white rounded-full p-2 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors z-10"
+                className="absolute top-3 left-full transform -translate-x-1/2 bg-gray-100 dark:bg-neutral-900 text-black dark:text-white rounded-full p-2 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors z-10"
             >
                 {isCollapsed ? <i className="fas fa-chevron-right"></i> : <i className="fas fa-chevron-left"></i>}
             </button>
@@ -52,7 +52,16 @@ const Sidebar = () => {
             >
                 {!isCollapsed && (
                     <div className="p-4 border-b border-neutral-300 dark:border-neutral-800">
-                        <h1 className="text-3xl font-bold text-black dark:text-white">Комнаты</h1>
+                        <h1 className="text-2xl font-bold text-black dark:text-white">Комнаты</h1>
+                    </div>
+                )}
+
+                {isCollapsed && (
+                    <div className="p-4 border-b border-neutral-300 dark:border-neutral-800">
+                        <div className="flex items-center justify-center mr-4">
+                            <img src='/logo2.svg' alt="Logo" className="w-8 h-8" />
+                            <h3 className="text-sm font-bold text-black dark:text-white">filmio</h3>
+                        </div>
                     </div>
                 )}
 

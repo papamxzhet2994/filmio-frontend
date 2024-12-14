@@ -210,7 +210,7 @@ const Chat = ({ roomId, username }) => {
     return (
         <div
             ref={chatContainerRef}
-            className={`flex flex-col h-[calc(100vh-80px)] ${
+            className={`flex flex-col h-[calc(100vh-65px)] ${
                 isCollapsed ? "w-20 fixed right-0 bottom-0" : "w-[400px]"
             } bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-white relative transition-all duration-300`}
             onClick={() => setContextMenu({visible: false, x: 0, y: 0, messageId: null})}

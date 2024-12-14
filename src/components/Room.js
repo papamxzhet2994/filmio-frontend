@@ -3,7 +3,7 @@ import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import ReactPlayer from "react-player";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import {useParams, useNavigate, Link} from "react-router-dom";
 import Chat from "./Chat";
 import toast from "react-hot-toast";
 import SettingsModal from "./SettingsModal";
@@ -373,7 +373,7 @@ const Room = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <div
-                className="bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white p-4 flex justify-between items-center shadow-md">
+                className="bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white px-4 py-2 flex justify-between items-center shadow-md">
                 <div className="flex items-start gap-4">
                     <div>
                         <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{room.name}</h2>
@@ -386,11 +386,13 @@ const Room = () => {
                         <div className="flex -space-x-3">
                             {participants.slice(0, 3).map((participant, index) => (
                                 <div key={index} className="relative group">
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
-                                        alt={`${participant} avatar`}
-                                        className="w-7 h-7 rounded-full border-2 border-white dark:border-neutral-900"
-                                    />
+                                    <a href={`/profile/${participant}`} className="focus:outline-none">
+                                        <img
+                                            src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
+                                            alt={`${participant} avatar`}
+                                            className="w-7 h-7 rounded-full border-2 border-white dark:border-neutral-900"
+                                        />
+                                    </a>
                                     <div
                                         className="absolute top-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-white dark:bg-neutral-800 text-center rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                     >
@@ -429,11 +431,13 @@ const Room = () => {
                                             key={index}
                                             className="flex items-center gap-2 p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md"
                                         >
-                                            <img
-                                                src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
-                                                alt={`${participant} avatar`}
-                                                className="w-8 h-8 rounded-full"
-                                            />
+                                            <Link to={`/profile/${participant}`} className="focus:outline-none">
+                                                <img
+                                                    src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
+                                                    alt={`${participant} avatar`}
+                                                    className="w-8 h-8 rounded-full"
+                                                />
+                                            </Link>
                                             <span className="text-sm text-neutral-900 dark:text-white">{participant}</span>
                                             {room.owner === username && (
                                                 <button

@@ -10,6 +10,7 @@ import MainLayout from "./components/MainLayout";
 import Settings from "./components/Settings";
 import {ThemeProvider} from "next-themes";
 import {Toaster} from "react-hot-toast";
+import UserProfile from "./components/UserProfile";
 
 const App = () => {
     return (
@@ -23,6 +24,7 @@ const App = () => {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/:username" element={<UserProfile />} />
 
                     {/* Вложенные маршруты для MainLayout */}
                     <Route path="/" element={<MainLayout />}>
