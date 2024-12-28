@@ -48,7 +48,9 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
             const response = await axios.put(
                 `http://localhost:8080/api/rooms/${roomId}/update-name`,
                 { name: roomName },
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers: { Authorization: `Bearer ${token}` }
+
+                }
             );
             const updatedRoom = response.data;
             toast.success("Имя комнаты успешно обновлено!");

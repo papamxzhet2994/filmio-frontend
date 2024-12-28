@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import ReactPlayer from "react-player";
 import axios from "axios";
 import {useParams, useNavigate, Link} from "react-router-dom";
 import Chat from "./Chat";
 import toast from "react-hot-toast";
 import SettingsModal from "./SettingsModal";
 import {AnimatePresence, motion } from "framer-motion";
+import VideoPlayer from "./VideoPlayer";
 
 const Room = () => {
     const { id } = useParams();
@@ -80,7 +80,12 @@ const Room = () => {
         return () => connected && disconnectFromRoom();
     }, [id, connected]);
 
-    const connectToRoom = () => {
+    const connectToRoom = async () => {
+        if (connected || stompClient) {
+            console.warn("Соединение уже активно. Пропуск повторного подключения.");
+            return;
+        }
+
         const socket = new SockJS("http://localhost:8080/ws");
         const client = Stomp.over(socket);
 
@@ -92,11 +97,9 @@ const Room = () => {
                     setParticipants(JSON.parse(message.body));
                 });
                 client.subscribe(`/topic/video/${id}`, (message) => {
-                    console.log("Получено сообщение через WebSocket:", message.body);
                     const videoControl = JSON.parse(message.body);
                     handleVideoControl(videoControl);
                 });
-
 
                 client.send(
                     "/app/join",
@@ -106,10 +109,19 @@ const Room = () => {
                 setStompClient(client);
             },
             (error) => {
-                console.error("WebSocket connection error:", error);
+                console.error("Ошибка подключения WebSocket:", error);
             }
         );
     };
+
+
+
+    useEffect(() => {
+        // Очистка доступа при смене комнаты
+        setAccessGranted(false);
+        setPassword(""); // Сброс введенного пароля
+        loadRoomDetails();
+    }, [id]);
 
     const loadRoomDetails = () => {
         axios
@@ -121,7 +133,7 @@ const Room = () => {
                 setRoom(roomData);
 
                 if (!roomData.hasPassword) {
-                    // Если пароль не требуется, сразу предоставляем доступ
+                    // Если пароль не требуется, предоставляем доступ
                     setAccessGranted(true);
                     connectToRoom();
                 }
@@ -134,8 +146,11 @@ const Room = () => {
     };
 
     useEffect(() => {
-        loadRoomDetails();
-    }, [id]);
+        if (accessGranted) {
+            connectToRoom();
+        }
+    }, [accessGranted]);
+
 
     const handleRoomUpdate = (updatedRoom) => {
         setRoom((prevRoom) => ({
@@ -155,7 +170,6 @@ const Room = () => {
             .then((response) => {
                 if (response.data) {
                     setAccessGranted(true);
-                    connectToRoom();
                 } else {
                     toast.error("Неверный пароль.");
                 }
@@ -166,16 +180,27 @@ const Room = () => {
             });
     };
 
-    const disconnectFromRoom = () => {
-        if (stompClient && connected) {
-            stompClient.send(
-                "/app/leave",
-                {},
-                JSON.stringify({ username, roomId: id, type: "LEAVE" })
-            );
-            stompClient.disconnect(() => {
-                setConnected(false);
-            });
+    const disconnectFromRoom = async () => {
+        if (stompClient) {
+            try {
+                if (connected) {
+                    stompClient.send(
+                        "/app/leave",
+                        {},
+                        JSON.stringify({ username, roomId: id, type: "LEAVE" })
+                    );
+                }
+                stompClient.disconnect(() => {
+                    console.log("WebSocket соединение завершено.");
+                    setConnected(false);
+                    setStompClient(null);
+                    setParticipants([]); // Сбрасываем участников
+                });
+            } catch (error) {
+                console.error("Ошибка при отключении от комнаты:", error);
+            }
+        } else {
+            console.warn("Нет активного STOMP клиента для отключения.");
         }
     };
 
@@ -199,6 +224,27 @@ const Room = () => {
                 console.error("Ошибка получения состояния видео:", error);
             });
     }, [id]);
+
+    useEffect(() => {
+        const switchRoom = async () => {
+            console.log(`Переключение комнаты на ID: ${id}`);
+
+            // Завершаем предыдущее соединение
+            await disconnectFromRoom();
+
+            // Сброс состояния
+            setAccessGranted(false);
+            setPassword("");
+            setRoom(null);
+            setParticipants([]);
+
+            // Подключаемся к новой комнате
+            loadRoomDetails();
+        };
+
+        switchRoom();
+    }, [id]);
+
 
 
     const handleVideoUrlChange = (e) => {
@@ -262,8 +308,6 @@ const Room = () => {
         }));
     };
 
-
-
     const deleteRoom = () => {
         axios.delete(`http://localhost:8080/api/rooms/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -299,11 +343,43 @@ const Room = () => {
     };
 
     const removeParticipant = (participant) => {
-        stompClient.send(`/app/remove-participant/${id}`, {}, JSON.stringify({
-            username: participant,
-        }));
-        toast.success(`${participant} удален из комнаты.`);
+        if (stompClient && connected) {
+            stompClient.send(`/app/remove-participant/${id}`, {}, JSON.stringify({
+                username: participant,
+            }));
+            toast.success(`${participant} удален из комнаты.`);
+        } else {
+            console.error("Попытка удалить участника без подключения.");
+        }
     };
+
+    useEffect(() => {
+        if (!stompClient || !connected) return;
+
+        const participantSubscription = stompClient.subscribe(
+            `/topic/participants/${id}`,
+            (message) => {
+                try {
+                    const updatedParticipants = JSON.parse(message.body);
+                    setParticipants(updatedParticipants);
+                } catch (error) {
+                    console.error("Ошибка обработки участников:", error);
+                }
+            }
+        );
+
+        // Отправка события о присоединении
+        stompClient.send(
+            "/app/join",
+            {},
+            JSON.stringify({ username, roomId: id, type: "JOIN" })
+        );
+
+        return () => {
+            // Удаление подписки при размонтировании
+            if (participantSubscription) participantSubscription.unsubscribe();
+        };
+    }, [stompClient, connected, id]);
 
 
     const handleCancel = () => {
@@ -388,7 +464,7 @@ const Room = () => {
                                 <div key={index} className="relative group">
                                     <a href={`/profile/${participant}`} className="focus:outline-none">
                                         <img
-                                            src={`https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
+                                            src={participant.avatar ? `http://localhost:8080${participant.avatar}` : `https://ui-avatars.com/api/?name=${participant}&background=random&rounded=true`}
                                             alt={`${participant} avatar`}
                                             className="w-7 h-7 rounded-full border-2 border-white dark:border-neutral-900"
                                         />
@@ -508,7 +584,7 @@ const Room = () => {
                     )}
                     <button
                         onClick={() => navigate("/")}
-                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all duration-300 overflow-hidden"
+                        className="group flex items-center justify-start w-12 hover:w-40 h-12 text-red-500 hover:text-red-500 dark:hover:text-red-300 rounded-full hover:bg-red-200 dark:hover:bg-red-700 transition-all duration-300 overflow-hidden"
                     >
                         <i className="fas fa-sign-out-alt text-xl ml-4"></i>
                         <span
@@ -522,7 +598,7 @@ const Room = () => {
             <div className="flex flex-grow">
                 <div className="flex-1 bg-white dark:bg-black">
                     {videoUrl ? (
-                        <ReactPlayer
+                        <VideoPlayer
                             ref={playerRef}
                             url={videoUrl}
                             playing={isPlaying}
@@ -534,58 +610,97 @@ const Room = () => {
                             onSeek={(time) => handleSeek(time)}
                         />
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full bg-neutral-200 dark:bg-neutral-700">
-                            <i className="fas fa-video text-4xl text-neutral-600 dark:text-neutral-300"></i>
-                            <p className="text-neutral-600 dark:text-neutral-300">Видео не найдено. Укажите URL.</p>
-                            <button
-                                onClick={toggleModal}
-                                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500">
-                                Обновить URL
-                            </button>
+                        <div
+                            className="flex flex-col items-center justify-center h-full bg-neutral-200 dark:bg-neutral-800 text-center p-6">
+                            <motion.div
+                                initial={{opacity: 0, y: -20}}
+                                animate={{opacity: 1, y: 0}}
+                                transition={{duration: 0.5}}
+                                className="text-center"
+                            >
+                                <div className="relative inline-block mb-4">
+                                    <i className="fas fa-video text-5xl text-neutral-600 dark:text-neutral-300"></i>
+                                    <div
+                                        className="absolute -bottom-1 -right-2 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                                    <div
+                                        className="absolute -bottom-1 -right-2 w-3 h-3 bg-green-500 rounded-full"></div>
+                                </div>
+                                <h3 className="text-2xl font-bold text-neutral-700 dark:text-neutral-200 mb-3">
+                                    Видео не найдено
+                                </h3>
+                                <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+                                    Укажите URL видео, чтобы начать просмотр.
+                                </p>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{opacity: 0, scale: 0.8}}
+                                animate={{opacity: 1, scale: 1}}
+                                transition={{delay: 0.3, duration: 0.5}}
+                                className="w-full max-w-sm"
+                            >
+                                <button
+                                    onClick={toggleModal}
+                                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-500 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300"
+                                >
+                                    Обновить URL
+                                </button>
+
+                                <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+                                    Не знаете, какой URL указать? <Link to="/help"
+                                                                     className="text-blue-600 hover:underline focus:underline dark:text-blue-400">
+                                    Посмотреть примеры
+                                </Link>.
+                                </p>
+                            </motion.div>
                         </div>
+
                     )}
 
                     <AnimatePresence>
-                    {isModalOpen && (
+                        {isModalOpen && (
                             <motion.div
-                                className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                exit={{opacity: 0}}
                             >
                                 <motion.div
-                                    className="bg-white dark:bg-neutral-800 text-black dark:text-white p-6 rounded-lg shadow-lg max-w-sm w-full"
-                                    initial={{ scale: 0.8 }}
-                                    animate={{ scale: 1 }}
-                                    exit={{ scale: 0.8 }}
+                                    className="bg-white dark:bg-neutral-900 text-black dark:text-white p-6 rounded-2xl shadow-2xl max-w-md w-full"
+                                    initial={{scale: 0.8}}
+                                    animate={{scale: 1}}
+                                    exit={{scale: 0.8}}
                                 >
-                                    <h3 className="text-xl font-semibold mb-4">Обновить URL видео</h3>
+                                    <h3 className="text-2xl font-bold mb-6 text-center">Обновить URL видео</h3>
                                     <input
                                         type="text"
                                         value={videoUrl}
                                         onChange={handleVideoUrlChange}
                                         placeholder="Введите URL видео"
-                                        className="w-full mb-4 p-2 rounded focus:outline-none focus:ring-1 focus:ring-fuchsia-900 bg-neutral-200 dark:bg-neutral-700 text-black dark:text-white"
+                                        className="w-full mb-6 p-3 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-neutral-100 dark:bg-neutral-800"
                                     />
-                                    <button
-                                        onClick={() => {
-                                            updateVideoUrl();
-                                            toggleModal();
-                                        }}
-                                        className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
-                                    >
-                                        Обновить
-                                    </button>
-                                    <button
-                                        onClick={toggleModal}
-                                        className="mt-4 w-full text-center text-red-600 hover:bg-red-600/10 p-2 rounded-md transition-all duration-300 dark:text-red-400"
-                                    >
-                                        Закрыть
-                                    </button>
+                                    <div className="flex flex-col gap-4">
+                                        <button
+                                            onClick={() => {
+                                                updateVideoUrl();
+                                                toggleModal();
+                                            }}
+                                            className="w-full bg-blue-600 dark:bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors duration-300"
+                                        >
+                                            Обновить
+                                        </button>
+                                        <button
+                                            onClick={toggleModal}
+                                            className="w-full text-red-600 dark:text-red-400 py-3 rounded-lg font-medium hover:bg-red-600/10 hover:text-red-600 dark:hover:bg-red-500/10 transition-colors duration-300"
+                                        >
+                                            Закрыть
+                                        </button>
+                                    </div>
                                 </motion.div>
                             </motion.div>
-                    )}
+                        )}
                     </AnimatePresence>
+
 
                 </div>
                 <div className="w-auto max-w-xl">

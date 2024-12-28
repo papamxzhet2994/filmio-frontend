@@ -11,6 +11,7 @@ import Settings from "./components/Settings";
 import {ThemeProvider} from "next-themes";
 import {Toaster} from "react-hot-toast";
 import UserProfile from "./components/UserProfile";
+import Help from "./components/Help";
 
 const App = () => {
     return (
@@ -25,6 +26,7 @@ const App = () => {
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:username" element={<UserProfile />} />
+                    <Route path="/help" element={<Help />} />
 
                     {/* Вложенные маршруты для MainLayout */}
                     <Route path="/" element={<MainLayout />}>

@@ -10,8 +10,23 @@ const Sidebar = () => {
     const username = localStorage.getItem("username");
     const location = useLocation();
 
+    const isTokenValid = (token) => {
+        if (!token) return false;
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            return Date.now() < payload.exp * 1000;
+        } catch (error) {
+            console.error("Invalid token:", error);
+            return false;
+        }
+    };
+
     useEffect(() => {
-        if (!token) return;
+        if (!token || !isTokenValid(token)) {
+            localStorage.removeItem("token");
+            setRooms([]);
+            return;
+        }
 
         axios.get("http://localhost:8080/api/rooms", {
             headers: {
@@ -27,16 +42,22 @@ const Sidebar = () => {
             },
         })
             .then(response => {
-                setAvatarUrl(response.data.avatarUrl ? `http://localhost:8080${response.data.avatarUrl}` : `https://ui-avatars.com/api/?name=${response.data.username}&background=random&rounded=true`);
+                setAvatarUrl(response.data.avatarUrl
+                    ? `http://localhost:8080${response.data.avatarUrl}`
+                    : `https://ui-avatars.com/api/?name=${response.data.username}&background=random&rounded=true`);
             })
             .catch(error => console.error("Ошибка при получении информации о пользователе:", error));
     }, [token]);
 
+    // Сворачивание сайдбара при смене маршрута
     useEffect(() => {
-        if (location.pathname.includes("/rooms/")) {
+        if (location.pathname.startsWith("/rooms/")) {
             setIsCollapsed(true);
         }
-    }, [location.pathname]);
+        if (location.pathname === "/") {
+            setIsCollapsed(false);
+        }
+    }, [location]);
 
     return (
         <div className="relative flex">
@@ -75,7 +96,6 @@ const Sidebar = () => {
                                 >
                                     <div
                                         className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-black dark:text-white">
-                                        {/*{room.name.charAt(0).toUpperCase()}*/}
                                         <img
                                             src={room.avatarUrl
                                                 ? `http://localhost:8080/${room.avatarUrl}`
@@ -83,14 +103,13 @@ const Sidebar = () => {
                                             alt="Avatar"
                                             className="w-10 h-10 rounded-full object-cover"
                                         />
-
                                     </div>
                                     {!isCollapsed && (
                                         <div className="ml-4">
                                             <div className="flex items-center space-x-2">
-                                            <p>{room.name}</p>
+                                                <p>{room.name}</p>
                                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-blue-700"></i> }
+                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-blue-700"></i>}
                                                 </p>
                                             </div>
                                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -104,10 +123,15 @@ const Sidebar = () => {
                         ))}
                     </ul>
                 ) : (
-                    <div className="flex-1 p-4 flex items-center justify-center">
-                        <p className="text-neutral-400 dark:text-neutral-500">Войдите в аккаунт, чтобы увидеть список
-                            комнат.</p>
-                    </div>
+                    !isCollapsed ? (
+                        <div className="flex-1 p-4 flex items-center justify-center">
+                            <p className="text-neutral-400 dark:text-neutral-500">Войдите в аккаунт, чтобы увидеть список комнат.</p>
+                        </div>
+                    ) : (
+                        <div className="flex-1 p-4 flex items-center justify-center">
+                            <i className="fas fa-warning text-yellow-500 text-4xl"></i>
+                        </div>
+                    )
                 )}
 
                 <div className="p-4 border-t border-neutral-300 dark:border-neutral-800 flex items-center justify-between">
@@ -142,9 +166,9 @@ const Sidebar = () => {
                     ) : (
                         <Link
                             to="/login"
-                            className="text-sm font-medium text-blue-600 dark:text-blue-500 border border-blue-600 dark:border-blue-500 px-4 py-1.5 rounded hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-colors"
+                            className="relative flex items-center justify-center p-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 group"
                         >
-                            Войти в аккаунт
+                            Войти
                         </Link>
                     )}
 

@@ -4,12 +4,14 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { motion, AnimatePresence } from "framer-motion";
 import Linkify from "react-linkify";
+import {Link} from "react-router-dom";
 
 const Chat = ({ roomId, username }) => {
     const [chatMessages, setChatMessages] = useState([]);
     const [chatMessage, setChatMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
+    const [newMessagesCount, setNewMessagesCount] = useState(0);
     const [contextMenu, setContextMenu] = useState({
         visible: false,
         x: 0,
@@ -27,7 +29,15 @@ const Chat = ({ roomId, username }) => {
     const textareaRef = useRef(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
-    const toggleCollapse = () => setIsCollapsed((prev) => !prev);
+    const toggleCollapse = () => {
+        setIsCollapsed((prev) => {
+            if (!prev) {
+                setNewMessagesCount(0); // Сбрасываем счётчик при открытии
+                scrollToBottom(); // Прокручиваем вниз
+            }
+            return !prev;
+        });
+    };
 
     const fetchMessages = async () => {
         try {
@@ -52,6 +62,9 @@ const Chat = ({ roomId, username }) => {
                             (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
                         );
                     });
+                    if (isCollapsed) {
+                        setNewMessagesCount((prevCount) => prevCount + 1);
+                    }
                 });
 
                 client.current.subscribe(`/topic/${roomId}/typing`, (message) => {
@@ -195,6 +208,7 @@ const Chat = ({ roomId, username }) => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
+        setNewMessagesCount(0); // Всегда сбрасываем при прокрутке
     };
 
     useEffect(() => {
@@ -216,7 +230,7 @@ const Chat = ({ roomId, username }) => {
             onClick={() => setContextMenu({visible: false, x: 0, y: 0, messageId: null})}
         >
             <div
-                className="flex items-center justify-between p-2 bg-neutral-200 dark:bg-neutral-700">
+                className="flex items-center justify-between p-2 bg-neutral-200 dark:bg-neutral-900">
                 <div
                     className={`flex items-center transition-all duration-300 ${isCollapsed ? "justify-center" : "gap-2"}`}>
                     <h2 className={`text-lg font-bold ${isCollapsed ? "hidden" : "block"} transition-opacity duration-300`}>Чат</h2>
@@ -237,7 +251,7 @@ const Chat = ({ roomId, username }) => {
                 </button>
             </div>
             {!isCollapsed ? (
-                <div className="flex-1 overflow-y-auto p-4 bg-neutral-100 dark:bg-neutral-800 rounded-t-lg shadow-inner relative">
+                <div className="flex-1 overflow-y-auto p-4 bg-neutral-100 dark:bg-neutral-700 rounded-t-lg shadow-inner relative">
                     {chatMessages.map((msg, index) => {
                         const isSameSenderAsPrevious =
                             index > 0 && chatMessages[index - 1]?.username === msg.username;
@@ -277,32 +291,57 @@ const Chat = ({ roomId, username }) => {
                                         }`}
                                     >
                                         {!isSameSenderAsPrevious && msg.username !== username && (
-                                            <span className="text-xs font-semibold">
+                                            <Link to={`/profile/${msg.username}`} className="text-xs font-semibold">
                                                 {msg.username}
-                                            </span>
+                                            </Link>
                                         )}
                                         <div
                                             className={`relative p-2 rounded-xl shadow-md text-sm min-w-32 ${
                                                 msg.username === username
                                                     ? "bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-tr-none"
-                                                    : "bg-white text-neutral-800 rounded-tl-none dark:bg-neutral-700 dark:text-neutral-200"
+                                                    : "bg-white text-neutral-800 rounded-tl-none dark:bg-neutral-600 dark:text-neutral-200"
                                             }`}
                                         >
                                             {msg.parentMessage && (
                                                 <blockquote
-                                                    className="mb-2 pl-3 border-l-4 border-purple-400 dark:text-white text-xs">
+                                                    className="mb-2 pl-3 border-l-4 border-purple-400 dark:text-white text-xs"
+                                                >
                                                     Ответ на: {msg.parentMessage.encryptedContent}
                                                 </blockquote>
                                             )}
                                             <div className="flex justify-between items-center">
                                                 <Linkify>
-                                                    <p className="break-words whitespace-pre-wrap">{msg.encryptedContent}</p>
+                                                    <p className="break-words whitespace-pre-wrap">
+                                                        {msg.encryptedContent.split(' ').map((word, index) =>
+                                                            word.startsWith('http') || word.startsWith('www.') ? (
+                                                                <a
+                                                                    key={index}
+                                                                    href={word}
+                                                                    className="text-neutral-200 dark:text-indigo-400 hover:text-indigo-300 dark:hover:text-indigo-200 transition-colors duration-300"
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
+                                                                    {word}
+                                                                </a>
+                                                            ) : (
+                                                                word + ' '
+                                                            )
+                                                        )}
+                                                    </p>
                                                 </Linkify>
-                                                <span className="flex text-xs dark:text-neutral-400 justify-end mt-auto ml-auto">
+
+                                                <span
+                                                    className={`flex text-xs justify-end mt-auto ml-4 ${
+                                                        msg.username === username
+                                                            ? "text-neutral-200" // Цвет для отправителя
+                                                            : "text-neutral-400" // Цвет для получателя
+                                                    }`}
+                                                >
                                                     {formatDate(msg.timestamp)}
                                                 </span>
                                             </div>
                                         </div>
+
                                     </div>
                                 </motion.div>
                             </React.Fragment>
@@ -319,8 +358,26 @@ const Chat = ({ roomId, username }) => {
                     <div ref={messagesEndRef}/>
                 </div>
             ) : (
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col h-full items-center justify-center">
+                    {isCollapsed && newMessagesCount > 0 && (
+                    <div className="absolute top-1/2 left-2/3 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                        {newMessagesCount}
+                    </div>
+                    )}
                     <i className="fas fa-comments text-gray-400 text-3xl cursor-pointer" onClick={toggleCollapse}></i>
+                </div>
+            )}
+            {chatMessages.length === 0 && !isCollapsed && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <img
+                        src="/logo.svg"
+                        alt="Logo"
+                        className="w-24 h-24 mx-auto mb-4"
+                        onClick={toggleCollapse}
+                    />
+                    <p className="text-center text-gray-500 dark:text-gray-400">
+                        Пока нет сообщений
+                    </p>
                 </div>
             )}
             <AnimatePresence>
@@ -431,12 +488,7 @@ const Chat = ({ roomId, username }) => {
                         className="relative bg-gradient-to-r from-blue-500 to-indigo-500 text-white w-11 h-11 rounded-full shadow-lg transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-indigo-600 active:scale-95"
                         onClick={sendMessage}
                     >
-                    <span
-                        className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-75 rounded-full blur-lg"
-                    ></span>
-                        <span className="relative flex items-center justify-center">
                         <i className="fas fa-arrow-up text-xl"></i>
-                    </span>
                     </button>
                 </div>
             )}

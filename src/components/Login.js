@@ -9,12 +9,30 @@ const Login = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
 
+    // Функция для проверки истечения токена
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            const expiration = payload.exp * 1000; // В миллисекунды
+            return Date.now() > expiration;
+        } catch (e) {
+            console.error("Invalid token:", e);
+            return true;
+        }
+    };
+
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
+        if (token && !isTokenExpired(token)) {
             setIsAuthenticated(true);
+        } else {
+            localStorage.removeItem("token");
+            setIsAuthenticated(false);
+            navigate("/login");
         }
-    }, []);
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -25,7 +43,13 @@ const Login = () => {
                 password,
             });
 
-            localStorage.setItem("token", response.data.token);
+            const token = response.data.token;
+            if (isTokenExpired(token)) {
+                setErrorMessage("Токен уже истек. Обратитесь к администратору.");
+                return;
+            }
+
+            localStorage.setItem("token", token);
             localStorage.setItem("username", response.data.username);
             setIsAuthenticated(true);
 

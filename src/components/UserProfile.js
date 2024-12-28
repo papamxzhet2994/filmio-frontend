@@ -6,6 +6,7 @@ const UserProfile = () => {
     const { username } = useParams();
     const [profile, setProfile] = useState(null);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,6 +36,14 @@ const UserProfile = () => {
 
     const socialLinks = JSON.parse(profile.socialLinks);
 
+    const handleImageClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-white flex flex-col items-center py-12">
             <div className="w-full max-w-4xl bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl p-8">
@@ -55,7 +64,8 @@ const UserProfile = () => {
                                 : `https://ui-avatars.com/api/?name=${profile.username}&background=random&rounded=true`
                         }
                         alt={`${profile.username}'s avatar`}
-                        className="w-40 h-40 rounded-full border-4 border-neutral-200 dark:border-neutral-800 shadow-xl"
+                        className="w-40 h-40 rounded-full border-4 border-neutral-200 dark:border-neutral-800 shadow-xl cursor-pointer"
+                        onClick={handleImageClick}
                     />
                     <div className="text-center">
                         <h1 className="text-3xl font-bold">{profile.username}</h1>
@@ -84,13 +94,12 @@ const UserProfile = () => {
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800 px-4 py-2 rounded-full shadow-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all text-sm text-neutral-800 dark:text-neutral-300"
                                     >
-                                        <SocialIcon service={link.name}/>
+                                        <SocialIcon service={link.name} />
                                         {link.name}
                                     </a>
                                 </li>
                             ))}
                         </ul>
-
                     ) : (
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
                             У пользователя нет социальных ссылок.
@@ -98,6 +107,32 @@ const UserProfile = () => {
                     )}
                 </div>
             </div>
+
+            {/* Модальное окно для увеличенного изображения */}
+            {isModalOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 transition-opacity duration-300"
+                    onClick={handleCloseModal}
+                >
+                    <button
+                        onClick={handleCloseModal}
+                        className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors"
+                    >
+                        <i className="fas fa-times text-2xl"></i>
+                    </button>
+                    <div className="relative bg-transparent p-4 flex justify-center items-center">
+                        <img
+                            src={
+                                profile.avatarUrl
+                                    ? `http://localhost:8080${profile.avatarUrl}`
+                                    : `https://ui-avatars.com/api/?name=${profile.username}&background=random&rounded=true`
+                            }
+                            alt="Full avatar"
+                            className="max-w-3xl max-h-[90vh] object-contain rounded-lg shadow-xl"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
