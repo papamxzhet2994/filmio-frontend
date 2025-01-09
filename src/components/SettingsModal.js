@@ -9,6 +9,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
     const [roomName, setRoomName] = useState("");
     const [loading, setLoading] = useState(false);
     const [avatarFile, setAvatarFile] = useState(null);
+    const [description, setDescription] = useState("");
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) {
@@ -18,7 +19,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
 
     const handleUpdatePassword = async () => {
         if (!newPassword) {
-            alert("Введите новый пароль!");
+            toast.error("Введите новый пароль!");
             return;
         }
         setLoading(true);
@@ -48,9 +49,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
             const response = await axios.put(
                 `http://localhost:8080/api/rooms/${roomId}/update-name`,
                 { name: roomName },
-                { headers: { Authorization: `Bearer ${token}` }
-
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             const updatedRoom = response.data;
             toast.success("Имя комнаты успешно обновлено!");
@@ -100,26 +99,63 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
         }
     };
 
+    const handleUpdateDescription = async () => {
+        if (!description) {
+            toast.error("Введите новое описание комнаты!");
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await axios.put(
+                `http://localhost:8080/api/rooms/${roomId}/update-description`,
+                { description },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const updatedRoom = response.data;
+            toast.success("Описание комнаты успешно обновлено!");
+            onRoomUpdate(updatedRoom);
+            setDescription("");
+        } catch (error) {
+            console.error("Ошибка при обновлении описания комнаты:", error);
+            toast.error("Не удалось обновить описание комнаты.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    const modalVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+        exit: { opacity: 0, transition: { duration: 0.3 } },
+    };
+
+    const contentVariants = {
+        hidden: { y: "100%" },
+        visible: {
+            y: 0,
+            transition: { type: "spring", stiffness: 100, damping: 20 },
+        },
+        exit: {
+            y: "100%",
+            transition: { type: "spring", stiffness: 80, damping: 15 },
+        },
+    };
 
     return (
         <motion.div
             className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             onClick={handleBackdropClick}
         >
             <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%", transition: { type: "spring", stiffness: 80, damping: 15 } }}
-                transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 20,
-                }}
-                className="w-2/3 max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-lg p-6 flex flex-col"
+                className="w-2/3 max-w-full h-[90%] fixed bottom-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-lg p-6 flex flex-col overflow-y-auto"
+                variants={contentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
             >
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Настройки</h2>
@@ -191,28 +227,45 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                     <input
                         type="file"
                         onChange={handleFileChange}
-                        className="mb-4 w-full text-sm text-neutral-700 dark:text-neutral-300"
+                        className="mb-4 w-full text-sm text-neutral-700 dark:text-neutral-300
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-lg file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-neutral-200 dark:file:bg-neutral-700 file:text-neutral-700 dark:file:text-neutral-200
+                        hover:file:bg-neutral-300 dark:hover:file:bg-neutral-600"
                     />
                     <button
                         onClick={handleUploadAvatar}
                         disabled={loading}
-                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none "
                     >
                         {loading ? <Cliploader size={20} color="white" /> : "Загрузить"}
                     </button>
                 </div>
-
-            </motion.div>
-            <motion.div
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "100%", transition: { type: "spring", stiffness: 80, damping: 15 }, opacity: 0 }}
-                className="">
-                <img
-                    src="/logo2.svg"
-                    alt="Logo"
-                    className="w-24 h-24 absolute bottom-0 left-[calc(18%-15px)]"
-                />
+                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
+                        <i className="fas fa-edit mr-2"></i>
+                        Изменить описание комнаты
+                    </h3>
+                    <label htmlFor="description" className="block">
+                        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Введите новое описание комнаты</span>
+                        <input
+                            type="text"
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Введите новое описание комнаты"
+                        />
+                    </label>
+                    <button
+                        onClick={handleUpdateDescription}
+                        disabled={loading}
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                    >
+                        {loading ? <Cliploader size={20} color="white" /> : "Изменить"}
+                    </button>
+                </div>
             </motion.div>
         </motion.div>
     );

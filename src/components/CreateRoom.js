@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 const CreateRoom = () => {
     const [roomName, setRoomName] = useState("");
     const [password, setPassword] = useState("");
+    const [description, setDescription] = useState(""); // Новое состояние
     const [isClosed, setIsClosed] = useState(false);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -13,6 +14,7 @@ const CreateRoom = () => {
     const [showPassword, setShowPassword] = useState(false);
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
+    const maxDescriptionLength = 500; // Максимальная длина описания
 
     const validateRoomName = () => {
         if (!roomName.trim()) {
@@ -52,7 +54,7 @@ const CreateRoom = () => {
         axios
             .post(
                 "http://localhost:8080/api/rooms/create",
-                { name: roomName, password, isClosed },
+                { name: roomName, password, description, isClosed },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -62,8 +64,7 @@ const CreateRoom = () => {
             .then((response) => {
                 navigate(`/rooms/${response.data.id}`);
             })
-            .catch((error) => {
-                console.error("Ошибка при создании комнаты:", error);
+            .catch(() => {
                 setError("Не удалось создать комнату. Попробуйте снова.");
             })
             .finally(() => setIsLoading(false));
@@ -77,16 +78,13 @@ const CreateRoom = () => {
         <div className="flex items-center justify-center min-h-screen bg-neutral-200 dark:bg-neutral-800">
             <motion.div
                 className="bg-white dark:bg-neutral-900 p-8 rounded-xl shadow-lg max-w-md w-full"
-                initial={{opacity: 0, y: -20}}
-                animate={{opacity: 1, y: 0}}
-                transition={{duration: 0.5}}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.5 }}
             >
                 <div className="flex items-center justify-center mb-6">
-                    <img
-                        src="/logo.svg"
-                        alt="Logo"
-                        className="w-32 h-32"
-                    />
+                    <img src="/logo.svg" alt="Logo" className="w-32 h-32" />
                 </div>
                 <h2 className="text-3xl font-bold text-neutral-900 dark:text-white text-center mb-6">
                     Создать новую комнату
@@ -95,9 +93,10 @@ const CreateRoom = () => {
                 {error && (
                     <motion.div
                         className="mb-4 text-red-600 bg-red-100 dark:bg-red-800 p-3 rounded-md text-sm"
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        transition={{duration: 0.3}}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.3 }}
                     >
                         {error}
                     </motion.div>
@@ -111,6 +110,23 @@ const CreateRoom = () => {
                         value={roomName}
                         onChange={(e) => setRoomName(e.target.value)}
                     />
+                </div>
+
+                <div className="mb-4">
+                    <textarea
+                        className="w-full p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:ring-1 focus:ring-blue-500"
+                        placeholder="Описание комнаты (необязательно)"
+                        value={description}
+                        onChange={(e) => {
+                            if (e.target.value.length <= maxDescriptionLength) {
+                                setDescription(e.target.value);
+                            }
+                        }}
+                        rows={4}
+                    />
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                        Осталось символов: {maxDescriptionLength - description.length}
+                    </p>
                 </div>
 
                 <div className="mb-4 relative">
@@ -134,7 +150,7 @@ const CreateRoom = () => {
                 </div>
 
                 {passwordStrength && (
-                    <p
+                    <motion.p
                         className={`text-sm mb-4 ${
                             passwordStrength === "Слабый"
                                 ? "text-red-500"
@@ -142,18 +158,23 @@ const CreateRoom = () => {
                                     ? "text-yellow-500"
                                     : "text-green-500"
                         }`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
                     >
                         Сила пароля: {passwordStrength}
-                    </p>
+                    </motion.p>
                 )}
 
-                <button
+                <motion.button
                     type="button"
                     onClick={generatePassword}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     className="w-full mb-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
                 >
                     Сгенерировать пароль
-                </button>
+                </motion.button>
 
                 <div className="flex items-center mb-6">
                     <input
@@ -169,15 +190,19 @@ const CreateRoom = () => {
                 </div>
 
                 <div className="flex space-x-4">
-                    <button
+                    <motion.button
                         onClick={handleCancel}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         className="w-full py-3 bg-neutral-200 dark:bg-neutral-600 text-neutral-900 dark:text-neutral-100 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-all"
                         disabled={isLoading}
                     >
                         Отмена
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                         onClick={handleCreateRoom}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         className={`w-full py-3 ${
                             isLoading
                                 ? "bg-gray-400 text-gray-700 cursor-not-allowed"
@@ -186,7 +211,7 @@ const CreateRoom = () => {
                         disabled={isLoading}
                     >
                         {isLoading ? "Создание..." : "Создать"}
-                    </button>
+                    </motion.button>
                 </div>
             </motion.div>
         </div>

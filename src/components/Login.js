@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -9,13 +10,11 @@ const Login = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
 
-    // Функция для проверки истечения токена
     const isTokenExpired = (token) => {
         if (!token) return true;
-
         try {
             const payload = JSON.parse(atob(token.split(".")[1]));
-            const expiration = payload.exp * 1000; // В миллисекунды
+            const expiration = payload.exp * 1000;
             return Date.now() > expiration;
         } catch (e) {
             console.error("Invalid token:", e);
@@ -36,23 +35,19 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
         try {
             const response = await axios.post("http://localhost:8080/api/auth/login", {
                 username,
                 password,
             });
-
             const token = response.data.token;
             if (isTokenExpired(token)) {
                 setErrorMessage("Токен уже истек. Обратитесь к администратору.");
                 return;
             }
-
             localStorage.setItem("token", token);
             localStorage.setItem("username", response.data.username);
             setIsAuthenticated(true);
-
             navigate("/");
         } catch (error) {
             setErrorMessage("Неправильные логин или пароль");
@@ -65,31 +60,64 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-300 dark:border-neutral-700">
+        <motion.div
+            className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <motion.div
+                className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 120 }}
+            >
                 {isAuthenticated ? (
-                    <div className="text-center">
+                    <motion.div
+                        className="text-center"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
                         <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
                             Вы уже вошли в систему
                         </h2>
-                        <button
+                        <motion.button
                             onClick={handleLogout}
-                            className="mt-4 py-2 px-4 text-white bg-red-600 rounded-full hover:bg-red-700 focus:outline-none focus:ring focus:ring-red-300 dark:focus:ring-red-500 transition-all duration-300"
+                            className="mt-4 py-2 px-4 text-white bg-red-600 rounded-full hover:bg-red-700 focus:outline-none focus:ring focus:ring-red-300 dark:focus:ring-red-500"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
                         >
                             Выйти
-                        </button>
-                    </div>
+                        </motion.button>
+                    </motion.div>
                 ) : (
                     <>
-                        <h2 className="text-3xl font-bold text-center text-neutral-900 dark:text-white">
+                        <motion.h2
+                            className="text-3xl font-bold text-center text-neutral-900 dark:text-white"
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
                             Вход в аккаунт
-                        </h2>
+                        </motion.h2>
                         {errorMessage && (
-                            <p className="text-red-600 dark:text-red-400 text-center">
+                            <motion.p
+                                className="text-red-600 dark:text-red-400 text-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                            >
                                 {errorMessage}
-                            </p>
+                            </motion.p>
                         )}
-                        <form onSubmit={handleLogin} className="space-y-6">
+                        <motion.form
+                            onSubmit={handleLogin}
+                            className="space-y-6"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                        >
                             <div>
                                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">
                                     Имя пользователя
@@ -116,16 +144,23 @@ const Login = () => {
                                     required
                                 />
                             </div>
-                            <button
+                            <motion.button
                                 type="submit"
-                                className="w-full py-3 mt-4 text-white bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-500 transition-all duration-300"
+                                className="w-full py-3 mt-4 text-white bg-blue-600 rounded-full hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-500"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
                                 Войти
-                            </button>
-                        </form>
+                            </motion.button>
+                        </motion.form>
                     </>
                 )}
-                <p className="text-center text-gray-600 dark:text-gray-400">
+                <motion.p
+                    className="text-center text-gray-600 dark:text-gray-400"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                >
                     Еще нет аккаунта?{" "}
                     <Link
                         to="/register"
@@ -133,9 +168,9 @@ const Login = () => {
                     >
                         Зарегистрироваться
                     </Link>
-                </p>
-            </div>
-        </div>
+                </motion.p>
+            </motion.div>
+        </motion.div>
     );
 };
 

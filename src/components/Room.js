@@ -728,33 +728,36 @@ const Room = () => {
                         exit={{ opacity: 0 }}
                     >
                         <motion.div
-                            className="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg"
+                            className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-xl max-w-md w-full"
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.8 }}
                         >
-                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
                                 Вы уверены, что хотите удалить эту комнату?
                             </h2>
-                            <div className="flex gap-4 justify-end">
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
+                                Это действие необратимо. Если вы удалите комнату, все связанные данные будут потеряны.
+                            </p>
+                            <div className="flex items-center gap-4 justify-end">
                                 <button
                                     onClick={toggleDeleteModal}
-                                    className="px-4 py-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600"
+                                    className="px-4 py-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                 >
                                     Отмена
                                 </button>
                                 <button
                                     onClick={deleteRoom}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
                                 >
                                     Удалить
                                 </button>
-
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </div>
     );
 

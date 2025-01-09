@@ -107,14 +107,13 @@ const Sidebar = () => {
                                     {!isCollapsed && (
                                         <div className="ml-4">
                                             <div className="flex items-center space-x-2">
-                                                <p>{room.name}</p>
-                                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-blue-700"></i>}
+                                                <p className="font-semibold text-black dark:text-white">{room.name}</p>
+                                                <p className="text-[12px] text-neutral-500 dark:text-neutral-400">
+                                                    {room.hasPassword ? <i className="fas fa-lock mr-1 text-red-700"></i> : <i className="fas fa-lock-open mr-1 text-green-500"></i>}
                                                 </p>
                                             </div>
                                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                                {room.isClosed ? "Закрытая" : "Открытая"} |
-                                                Участников: {room.participantCount}
+                                                {room.description}
                                             </p>
                                         </div>
                                     )}

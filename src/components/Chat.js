@@ -251,7 +251,7 @@ const Chat = ({ roomId, username }) => {
                 </button>
             </div>
             {!isCollapsed ? (
-                <div className="flex-1 overflow-y-auto p-4 bg-neutral-100 dark:bg-neutral-700 rounded-t-lg shadow-inner relative">
+                <div className="flex-1 overflow-y-auto p-4 bg-neutral-100 dark:bg-neutral-700 rounded-t-lg rounded-b-lg shadow-inner relative">
                     {chatMessages.map((msg, index) => {
                         const isSameSenderAsPrevious =
                             index > 0 && chatMessages[index - 1]?.username === msg.username;
@@ -296,7 +296,7 @@ const Chat = ({ roomId, username }) => {
                                             </Link>
                                         )}
                                         <div
-                                            className={`relative p-2 rounded-xl shadow-md text-sm min-w-32 ${
+                                            className={`relative p-1.5 rounded-xl shadow-md text-sm min-w-32 ${
                                                 msg.username === username
                                                     ? "bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-tr-none"
                                                     : "bg-white text-neutral-800 rounded-tl-none dark:bg-neutral-600 dark:text-neutral-200"
@@ -386,7 +386,7 @@ const Chat = ({ roomId, username }) => {
                         initial={{opacity: 0, scale: 0.9}}
                         animate={{opacity: 1, scale: 1}}
                         exit={{opacity: 0, scale: 0.9}}
-                        className="absolute bg-neutral-200 dark:bg-neutral-700 rounded-lg shadow-lg p-2 text-white w-52"
+                        className="absolute bg-neutral-200 dark:bg-neutral-800 rounded-lg shadow-lg p-2 text-white w-52"
                         style={{top: contextMenu.y, left: contextMenu.x}}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -473,10 +473,10 @@ const Chat = ({ roomId, username }) => {
             )}
 
             {!isCollapsed && (
-                <div className="bg-neutral-200 dark:bg-neutral-900 p-2 rounded-b-lg shadow-inner flex items-end space-x-2">
+                <div className="bg-neutral-200 dark:bg-neutral-900 p-2 shadow-inner flex items-end space-x-2">
                 <textarea
                     ref={textareaRef}
-                    className="flex-grow bg-neutral-100 border border-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 text-neutral-800 dark:text-white p-3 rounded-xl shadow focus:outline-none resize-none overflow-y-auto"
+                    className="flex-grow bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-white p-2 rounded-xl shadow focus:outline-none resize-none overflow-y-auto"
                     placeholder="Введите сообщение"
                     value={chatMessage}
                     onChange={handleMessageChange}
@@ -485,7 +485,7 @@ const Chat = ({ roomId, username }) => {
                     style={{maxHeight: "150px"}}
                 ></textarea>
                     <button
-                        className="relative bg-gradient-to-r from-blue-500 to-indigo-500 text-white w-11 h-11 rounded-full shadow-lg transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-indigo-600 active:scale-95"
+                        className="relative bg-gradient-to-r from-blue-500 to-indigo-500 text-white w-10 h-10 rounded-full shadow-lg transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-indigo-600 active:scale-95"
                         onClick={sendMessage}
                     >
                         <i className="fas fa-arrow-up text-xl"></i>

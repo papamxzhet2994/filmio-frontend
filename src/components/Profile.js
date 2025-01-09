@@ -5,6 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Settings from "./Settings";
 import { motion, AnimatePresence } from "framer-motion";
 import SocialIcon from "./SocialIcon";
+import LightRope from "./LightRope";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -159,6 +160,7 @@ const Profile = () => {
 
     return (
         <div className="flex flex-col lg:flex-row min-h-screen bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+            <LightRope />
             <Toaster position="top-right"/>
             <Link
                 to="/"
