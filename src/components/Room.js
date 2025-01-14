@@ -742,13 +742,13 @@ const Room = () => {
                             <div className="flex items-center gap-4 justify-end">
                                 <button
                                     onClick={toggleDeleteModal}
-                                    className="px-4 py-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                                    className="px-4 py-3 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                 >
                                     Отмена
                                 </button>
                                 <button
                                     onClick={deleteRoom}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
+                                    className="px-4 py-3 bg-red-600 text-white rounded-full hover:bg-red-500 transition-colors"
                                 >
                                     Удалить
                                 </button>

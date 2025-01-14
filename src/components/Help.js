@@ -8,11 +8,11 @@ const Help = () => {
 
     return (
         <div
-            className="max-w-6xl container my-auto mx-auto p-10 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 text-white rounded-3xl shadow-xl">
+            className="max-w-6xl container mx-auto mt-12 p-10 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 text-white rounded-3xl shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center text-lg text-neutral-700 dark:text-neutral-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="flex items-center text-lg text-neutral-200 hover:text-blue-300 dark:hover:text-blue-400 transition-colors"
                 >
                     <i className="fas fa-chevron-left mr-2"></i>Назад
                 </button>

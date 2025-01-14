@@ -168,7 +168,7 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                 </div>
 
                 {/* Смена пароля */}
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                <div className="mb-8 rounded-3xl shadow-lg bg-white dark:bg-neutral-900 p-8">
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-lock mr-2"></i>
                         Сменить пароль
@@ -180,21 +180,21 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                             id="newPassword"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-3 mt-2 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-full shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Введите новый пароль"
                         />
                     </label>
                     <button
                         onClick={handleUpdatePassword}
                         disabled={loading}
-                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-full shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
                     >
                         {loading ? <Cliploader size={20} color="white" /> : "Обновить"}
                     </button>
                 </div>
 
                 {/* Обновление имени комнаты */}
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                <div className="mb-8 rounded-3xl shadow-lg bg-white dark:bg-neutral-900 p-6">
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-edit mr-2"></i>
                         Изменить имя комнаты
@@ -206,20 +206,20 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                             id="roomName"
                             value={roomName}
                             onChange={(e) => setRoomName(e.target.value)}
-                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-full shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Введите новое имя комнаты"
                         />
                     </label>
                     <button
                         onClick={handleUpdateRoomName}
                         disabled={loading}
-                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-full shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
                     >
                         {loading ? <Cliploader size={20} color="white" /> : "Изменить"}
                     </button>
                 </div>
                 {/* Загрузка аватара комнаты */}
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                <div className="mb-8 rounded-3xl shadow-lg bg-white dark:bg-neutral-900 p-6">
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-upload mr-2"></i>
                         Загрузить аватар комнаты
@@ -237,12 +237,12 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                     <button
                         onClick={handleUploadAvatar}
                         disabled={loading}
-                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none "
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-full shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none "
                     >
                         {loading ? <Cliploader size={20} color="white" /> : "Загрузить"}
                     </button>
                 </div>
-                <div className="mb-8 rounded-lg shadow-lg bg-white dark:bg-neutral-900 p-6">
+                <div className="mb-8 rounded-3xl shadow-lg bg-white dark:bg-neutral-900 p-6">
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                         <i className="fas fa-edit mr-2"></i>
                         Изменить описание комнаты
@@ -254,14 +254,14 @@ const SettingsModal = ({ isOpen, onClose, roomId, token, onRoomUpdate }) => {
                             id="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-3 text-base text-neutral-700 dark:text-neutral-300 transition duration-150 ease-in-out bg-white dark:bg-neutral-900 appearance-none border border-neutral-300 dark:border-neutral-600 rounded-full shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Введите новое описание комнаты"
                         />
                     </label>
                     <button
                         onClick={handleUpdateDescription}
                         disabled={loading}
-                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
+                        className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-full shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none"
                     >
                         {loading ? <Cliploader size={20} color="white" /> : "Изменить"}
                     </button>

@@ -126,7 +126,7 @@ const Login = () => {
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-full focus:outline-none focus:ring focus:ring-fuchsia-500 dark:focus:ring-fuchsia-400 transition-all duration-300 ease-in-out"
                                     placeholder="Введите имя пользователя"
                                     required
                                 />
@@ -139,7 +139,7 @@ const Login = () => {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500 dark:focus:ring-blue-400"
+                                    className="mt-1 block w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-full focus:outline-none focus:ring focus:ring-fuchsia-500 dark:focus:ring-fuchsia-400 transition-all duration-300 ease-in-out"
                                     placeholder="Введите пароль"
                                     required
                                 />

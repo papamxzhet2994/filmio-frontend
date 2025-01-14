@@ -188,28 +188,31 @@ const Profile = () => {
                     <li>
                         <button
                             onClick={() => setCurrentPage("profile")}
-                            className={`w-full py-2 px-4 text-left rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none ${
+                            className={`w-full py-3 px-4 text-left rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none transform transition duration-300 ease-in-out ${
                                 currentPage === "profile" ? "bg-neutral-200 dark:bg-neutral-800" : ""
                             }`}
                         >
+                            <i className="fas fa-user mr-2"></i>
                             Профиль
                         </button>
                     </li>
                     <li>
                         <button
                             onClick={() => setCurrentPage("settings")}
-                            className={`w-full py-2 px-4 text-left rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none ${
+                            className={`w-full py-3 px-4 text-left rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 focus:outline-none transform transition duration-300 ease-in-out ${
                                 currentPage === "settings" ? "bg-neutral-200 dark:bg-neutral-800" : ""
                             }`}
                         >
+                            <i className="fas fa-cog mr-2"></i>
                             Настройки
                         </button>
                     </li>
                     <li>
                         <button
                             onClick={() => setIsLogoutModalVisible(true)}
-                            className="w-full py-2 px-4 text-left rounded text-red-500 hover:bg-red-500/10 dark:hover:bg-red-600/10 mt-4 focus:outline-none"
+                            className="w-full py-3 px-4 text-left rounded-lg text-red-500 hover:bg-red-500/10 dark:hover:bg-red-600/10 mt-4 focus:outline-none transform transition duration-300 ease-in-out"
                         >
+                            <i className="fas fa-sign-out-alt mr-2"></i>
                             Выход
                         </button>
                     </li>
@@ -243,16 +246,16 @@ const Profile = () => {
                                     Вы уверены, что хотите завершить сеанс? Все несохраненные изменения будут потеряны.
                                 </p>
                             </div>
-                            <div className="flex justify-between items-center p-6 bg-neutral-100 dark:bg-neutral-800">
+                            <div className="flex justify-end space-x-2 items-center p-6 bg-neutral-100 dark:bg-neutral-800">
                                 <button
                                     onClick={() => setIsLogoutModalVisible(false)}
-                                    className="px-4 py-2 rounded-lg font-medium bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                                    className="px-6 py-3 rounded-full font-medium bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                                 >
                                     Отмена
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="px-4 py-2 rounded-lg font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+                                    className="px-6 py-3 rounded-full font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
                                 >
                                     Выйти
                                 </button>
@@ -298,13 +301,13 @@ const Profile = () => {
                             <div className="flex mt-4 gap-2">
                                 <button
                                     onClick={uploadAvatar}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                                    className="bg-blue-500 text-white px-4 py-3 rounded-full hover:bg-blue-600 transition-colors"
                                 >
                                     Загрузить аватар
                                 </button>
                                 <button
                                     onClick={deleteAvatar}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                                    className="bg-red-500 text-white px-4 py-3 rounded-full hover:bg-red-600 transition-colors"
                                 >
                                     Удалить аватар
                                 </button>
@@ -317,7 +320,7 @@ const Profile = () => {
                                 {links.map((link) => (
                                     <div
                                         key={link.id}
-                                        className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+                                        className="flex items-center gap-2 p-4 bg-gray-100 dark:bg-neutral-800 rounded-full shadow-md hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
                                     >
                                         <a
                                             href={link.url}
@@ -332,7 +335,7 @@ const Profile = () => {
                                             onClick={() => handleDeleteLink(link.id)}
                                             className="ml-auto text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 focus:outline-none"
                                         >
-                                            <i className="fa-regular fa-trash-can text-xs"></i>
+                                            <i className="fa-regular fa-trash-can text-md"></i>
                                         </button>
                                     </div>
                                 ))}
