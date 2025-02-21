@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: 'Poppins', sans-serif;
+    }
+}
+
+.swiper-pagination {
+    position: relative; /* Расположение под карточкой */
+    bottom: -10px; /* Сдвигаем ниже карточки */
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Расстояние между точками */
+    z-index: 10; /* Убедимся, что они выше фона */
+}
+
+.custom-bullet {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.6); /* Прозрачный фон для неактивных точек */
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+}
+
+.custom-bullet:hover {
+    transform: scale(1.2); /* Увеличение при наведении */
+    opacity: 0.8;
+}
+
+.custom-bullet.swiper-pagination-bullet-active {
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(45deg, #a855f7, #ec4899); /* Градиент активной точки */
+    border: 2px solid white; /* Контрастный белый бордер */
+    box-shadow: 0 4px 8px rgba(236, 72, 153, 0.5); /* Подсветка активной точки */
+    transform: scale(1.4); /* Легкое увеличение активной точки */
+}
+
